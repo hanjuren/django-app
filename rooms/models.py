@@ -1,8 +1,9 @@
 from django.db import models
 from django.conf import settings
+from common.models import CommonModel
 
 
-class Room(models.Model):
+class Room(CommonModel):
 
     """Room Definition"""
 
@@ -45,7 +46,7 @@ class Room(models.Model):
     )
 
 
-class Amenity(models.Model):
+class Amenity(CommonModel):
 
     """Amenity Definition"""
 
