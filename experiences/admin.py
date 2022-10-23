@@ -6,6 +6,7 @@ from .models import Experience, Perk
 class ExperienceAdmin(admin.ModelAdmin):
 
     list_display = ("name", "price", "starts_at", "ends_at", "created_at", "updated_at")
+    list_filter = ("category",)
 
 
 @admin.register(Perk)
