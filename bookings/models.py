@@ -33,18 +33,21 @@ class Booking(CommonModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.DO_NOTHING,
+        related_name="bookings",
     )
     room = models.ForeignKey(
         "rooms.Room",
         null=True,
         blank=True,
         on_delete=models.DO_NOTHING,
+        related_name="bookings",
     )
     experience = models.ForeignKey(
         "experiences.Experience",
         null=True,
         blank=True,
         on_delete=models.DO_NOTHING,
+        related_name="bookings",
     )
 
     class Meta:

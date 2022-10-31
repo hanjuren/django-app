@@ -16,18 +16,21 @@ class Review(CommonModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.DO_NOTHING,
         db_column="user_id",
+        related_name="reviews",
     )
     room = models.ForeignKey(
         "rooms.Room",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        related_name="reviews",
     )
     experience = models.ForeignKey(
         "experiences.Experience",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        related_name="reviews",
     )
 
     class Meta:

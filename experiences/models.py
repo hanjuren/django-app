@@ -31,12 +31,14 @@ class Experience(CommonModel):
     ends_at = models.TimeField()
     perks = models.ManyToManyField(
         "experiences.Perk",
+        related_name="experiences",
     )
     category = models.ForeignKey(
         "categories.Category",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name="experiences",
     )
 
     class Meta:

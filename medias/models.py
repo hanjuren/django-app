@@ -23,6 +23,7 @@ class Photo(CommonModel):
         null=True,
         blank=True,
         on_delete=models.CASCADE,
+        related_name="photos",
     )
 
     class Meta:
@@ -40,6 +41,7 @@ class Video(CommonModel):
     experience = models.OneToOneField(
         "experiences.Experience",
         on_delete=models.CASCADE,
+        related_name="video",
     )
 
     class Meta:
