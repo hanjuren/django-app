@@ -23,11 +23,36 @@ class WordFilter(admin.SimpleListFilter):  # noqa
             return result
 
 
+class RatingFilter(admin.SimpleListFilter): # noqa
+    title = "Filter by Rating"
+    parameter_name = "filter_condition"
+
+    FILTER_SET = {
+        "good": "rating__gte",
+        "bad": "rating__lt",
+    }
+
+    def lookups(self, request, model_admin):
+        return [
+            ("good", "Good Reviews"),
+            ("bad", "Bad Reviews"),
+        ]
+
+    def queryset(self, request, reviews):
+        condition = self.value()
+        if condition:
+            filter_set = {self.FILTER_SET[condition]: 3}
+            return reviews.filter(**filter_set)
+        else:
+            return reviews
+
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
 
     list_display = ("__str__", "payload", "created_at", "updated_at")
     list_filter = (
+        RatingFilter,
         WordFilter,
         "rating",
         "user__is_host",
