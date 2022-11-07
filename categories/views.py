@@ -18,8 +18,13 @@ def categories(request):
             }
         )
     elif request.method == "POST":
-        print(request.data)
-        return Response("This is Create Category API")
+        data = CategorySerializer(data=request.data)
+        if data.is_valid():
+            data.save()
+            return Response("This is Create Category API")
+        else:
+            return Response(data.errors, status=422)
+
 
 
 @api_view()
