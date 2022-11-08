@@ -22,5 +22,4 @@ class CategorySerializer(serializers.Serializer):  # noqa
     )
 
     def create(self, validated_data):
-        # print(**validated_data)
         return Category.objects.create(**validated_data)
