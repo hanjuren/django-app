@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, exceptions
@@ -15,8 +16,6 @@ class Rooms(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        print(request.user.is_authenticated)
-        print(request.user)
         if request.user.is_authenticated:
             serializer = RoomDeatilSerializer(data=request.data)
             if serializer.is_valid():
@@ -31,20 +30,19 @@ class Rooms(APIView):
                 except Category.DoesNotExist:
                     raise exceptions.NotFound("Category Not Found")
 
-                room = serializer.save(
-                    owner=request.user,
-                    category=category,
-                )
-
-                # amenities
-                for pk in request.data.get("amenity_ids", []):
-                    try:
-                        amenity = Amenity.objects.get(pk=pk)
-                        room.amenities.add(amenity)
-                    except Amenity.DoesNotExist:
-                        pass
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                try:
+                    with transaction.atomic():
+                        room = serializer.save(
+                            owner=request.user,
+                            category=category,
+                        )
+                        # amenities
+                        for pk in request.data.get("amenity_ids", []):
+                            amenity = Amenity.objects.get(pk=pk)
+                            room.amenities.add(amenity)
+                        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                except Exception:
+                    raise exceptions.ParseError("Create Room Fail")
             else:
                 return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         else:
