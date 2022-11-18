@@ -62,8 +62,49 @@ class RoomDetail(APIView):
         serializer = RoomDeatilSerializer(room)
         return Response(serializer.data)
 
-    def post(self, request, pk):
-        pass
+    def put(self, request, pk):
+        room = self.get_object(pk)
+
+        if room.owner != request.user:
+            raise exceptions.PermissionDenied
+
+        serializer = RoomDeatilSerializer(room, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            category_pk = request.data.get("category_id")
+            if not category_pk:
+                raise exceptions.ParseError("Category is required")
+
+            try:
+                category = Category.objects.get(pk=request.data.get("category_id"))
+                if category.kind == Category.CategoryKindChoices.EXPERIENCES:
+                    raise exceptions.ParseError("Category kind should be rooms")
+            except Category.DoesNotExist:
+                raise exceptions.NotFound("Category is not found")
+
+            try:
+                with transaction.atomic():
+                    room = serializer.save(category=category)
+
+                    amenity_ids = request.data.get("amenity_ids", [])
+                    if amenity_ids:
+                        room.amenities.clear()
+                        for amenity_pk in amenity_ids:
+                            amenity = Amenity.objects.get(pk=amenity_pk)
+                            room.amenities.add(amenity)
+
+                    return Response(serializer.data)
+            except Exception:
+                raise exceptions.ParseError("Amenity is not found")
+        else:
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def delete(self, request, pk):
+        room = self.get_object(pk)
+        if room.owner != request.user:
+            raise exceptions.PermissionDenied
+        room.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class Amenities(APIView):
