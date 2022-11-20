@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -129,7 +130,7 @@ class RoomReviews(APIView):
         except ValueError:
             page = 1
 
-        page_size = 3
+        page_size = settings.PAGE_SIZE
         offset = (page - 1) * page_size
         limit = offset + page_size
 
@@ -155,7 +156,7 @@ class RoomAmenities(APIView):
         except ValueError:
             page = 1
 
-        page_size = 3
+        page_size = settings.PAGE_SIZE
         offset = (page - 1) * page_size
         limit = offset + page_size
 
@@ -165,6 +166,19 @@ class RoomAmenities(APIView):
             many=True,
         )
         return Response(serializer.data)
+
+
+class RoomPhotos(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise exceptions.NotFound
+
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        pass
 
 
 class Amenities(APIView):
