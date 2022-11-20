@@ -44,8 +44,6 @@ class AmenitySerializer(serializers.ModelSerializer):
 class RoomDeatilSerializer(serializers.ModelSerializer):
 
     owner = TinyUserSerializer(read_only=True)
-    amenities = AmenitySerializer(read_only=True, many=True)
-    reviews = ReviewSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
@@ -60,4 +58,3 @@ class RoomDeatilSerializer(serializers.ModelSerializer):
     def get_is_owner(self, room):
         request = self.context['request']
         return room.owner == request.user
-
