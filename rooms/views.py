@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, exceptions
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Amenity, Room
 from categories.models import Category
@@ -12,6 +13,8 @@ from medias.serializers import PhotoSerializer
 
 
 class Rooms(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         rooms = Room.objects.all()
@@ -23,40 +26,39 @@ class Rooms(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        if request.user.is_authenticated:
-            serializer = RoomDeatilSerializer(data=request.data)
-            if serializer.is_valid():
-                # category
-                category_pk = request.data.get("category_id")
-                if not category_pk:
-                    raise exceptions.ParseError("Category is required.")
-                try:
-                    category = Category.objects.get(pk=category_pk)
-                    if category.kind == Category.CategoryKindChoices.EXPERIENCES:
-                        raise exceptions.ParseError("Category kind should be Rooms")
-                except Category.DoesNotExist:
-                    raise exceptions.NotFound("Category Not Found")
+        serializer = RoomDeatilSerializer(data=request.data)
+        if serializer.is_valid():
+            # category
+            category_pk = request.data.get("category_id")
+            if not category_pk:
+                raise exceptions.ParseError("Category is required.")
+            try:
+                category = Category.objects.get(pk=category_pk)
+                if category.kind == Category.CategoryKindChoices.EXPERIENCES:
+                    raise exceptions.ParseError("Category kind should be Rooms")
+            except Category.DoesNotExist:
+                raise exceptions.NotFound("Category Not Found")
 
-                try:
-                    with transaction.atomic():
-                        room = serializer.save(
-                            owner=request.user,
-                            category=category,
-                        )
-                        # amenities
-                        for pk in request.data.get("amenity_ids", []):
-                            amenity = Amenity.objects.get(pk=pk)
-                            room.amenities.add(amenity)
-                        return Response(serializer.data, status=status.HTTP_201_CREATED)
-                except Exception:
-                    raise exceptions.ParseError("Create Room Fail")
-            else:
-                return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            try:
+                with transaction.atomic():
+                    room = serializer.save(
+                        owner=request.user,
+                        category=category,
+                    )
+                    # amenities
+                    for pk in request.data.get("amenity_ids", []):
+                        amenity = Amenity.objects.get(pk=pk)
+                        room.amenities.add(amenity)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Exception:
+                raise exceptions.ParseError("Create Room Fail")
         else:
-            raise exceptions.NotAuthenticated
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class RoomDetail(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -171,6 +173,8 @@ class RoomAmenities(APIView):
 
 class RoomPhotos(APIView):
 
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -179,8 +183,6 @@ class RoomPhotos(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
-        if not request.user.is_authenticated:
-            raise exceptions.NotAuthenticated
         if request.user != room.owner:
             raise exceptions.PermissionDenied
 
