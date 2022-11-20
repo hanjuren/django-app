@@ -6,7 +6,7 @@ class Photo(CommonModel):
 
     """Photo Model Definition"""
 
-    file = models.ImageField()
+    file = models.URLField()
     description = models.CharField(
         max_length=140,
         null=True,
@@ -37,7 +37,7 @@ class Video(CommonModel):
 
     """Video Model definition"""
 
-    file = models.FileField()
+    file = models.URLField()
     experience = models.OneToOneField(
         "experiences.Experience",
         on_delete=models.CASCADE,

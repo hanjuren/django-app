@@ -8,6 +8,7 @@ from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDeatilSerializer
 from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
 
 
 class Rooms(APIView):
@@ -178,7 +179,17 @@ class RoomPhotos(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
-        pass
+        if not request.user.is_authenticated:
+            raise exceptions.NotAuthenticated
+        if request.user != room.owner:
+            raise exceptions.PermissionDenied
+
+        serializer = PhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(room=room)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class Amenities(APIView):
