@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,8 +7,10 @@ from rest_framework import status, exceptions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Amenity, Room
-from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDeatilSerializer
+from bookings.models import Booking
+from categories.models import Category
+from bookings.serializers import PublicBookingSerializer, CreateBookingSerializer
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
 
@@ -250,3 +253,39 @@ class AmenityDetail(APIView):
         amenity = self.get_amenity(pk)
         amenity.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RoomBookings(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        now = timezone.localtime().date()
+        print(now)
+        bookings = Booking.objects.filter(
+            room=room.pk,
+            kind=Booking.BookingKindChoices.ROOM,
+            check_in__gt=now
+        )
+        serializer = PublicBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = CreateBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)

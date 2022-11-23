@@ -9,6 +9,7 @@ urls = [
     path("categories/", include("categories.urls")),
     path("experiences/", include("experiences.urls")),
     path("medias/", include("medias.urls")),
+    path("wishlists/", include("wishlists.urls")),
 ]
 
 urlpatterns = [
