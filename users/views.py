@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -43,7 +44,7 @@ class Users(APIView):
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-class PublickUser(APIView):
+class PublicUser(APIView):
 
     def get(self, request, username):
         try:
@@ -72,3 +73,31 @@ class ChangePassword(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SignIn(APIView):
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise exceptions.ParseError
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+        if user:
+            login(request, user)
+            return Response({"ok": "welcome"})
+        else:
+            return Response({"error": "wrong password."})
+
+
+class SignOut(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+        return Response({"ok": "log-out done!"})
