@@ -47,6 +47,11 @@ class Experience(CommonModel):
     def __str__(self):
         return self.name
 
+    def add_perks(self, perk_ids):
+        perks = Perk.objects.filter(pk__in=perk_ids)
+        for perk in perks:
+            self.perks.add(perk)
+
 
 class Perk(CommonModel):
 
