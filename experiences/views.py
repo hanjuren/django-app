@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, exceptions
@@ -95,6 +96,22 @@ class ExperienceDetail(APIView):
             raise exceptions.PermissionDenied
         experience.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ExperiencePerks(APIView, BaseHelper):
+
+    def get(self, request, pk):
+        queryset = models.Perk.objects.filter(experiences=pk)
+
+        total = queryset.count()
+        records = queryset[self.offset(request):self.limit(request)]
+
+        return Response(
+            {
+                "total": total,
+                "records": serializers.PerkSerializer(records, many=True).data,
+            }
+        )
 
 
 class Perks(APIView):
