@@ -7,7 +7,7 @@ from rest_framework import status, exceptions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Amenity, Room
-from .serializers import AmenitySerializer, RoomListSerializer, RoomDeatilSerializer
+from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 from bookings.models import Booking
 from categories.models import Category
 from bookings.serializers import PublicBookingSerializer, CreateBookingSerializer
@@ -83,7 +83,12 @@ class RoomDetail(APIView):
         if room.owner != request.user:
             raise exceptions.PermissionDenied
 
-        serializer = RoomDeatilSerializer(room, data=request.data, partial=True)
+        serializer = RoomDetailSerializer(
+            room,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
 
         if serializer.is_valid():
             category_pk = request.data.get("category_id")

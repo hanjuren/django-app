@@ -44,7 +44,7 @@ class AmenitySerializer(serializers.ModelSerializer):
         )
 
 
-class RoomDeatilSerializer(serializers.ModelSerializer):
+class RoomDetailSerializer(serializers.ModelSerializer):
 
     owner = TinyUserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
