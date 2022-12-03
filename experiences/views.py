@@ -20,8 +20,7 @@ class ExperienceList(APIView, BaseHelper):
 
         total = queryset.count()
         records = queryset \
-            .prefetch_related("perks") \
-            .select_related("category")[self.offset(request):self.limit(request)]
+            .prefetch_related("perks", "category", "host")[self.offset(request):self.limit(request)]
 
         return Response(
             {

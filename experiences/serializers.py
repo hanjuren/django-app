@@ -2,6 +2,7 @@ from rest_framework import serializers, exceptions
 from . import models
 from categories.serializers import CategorySerializer
 from categories.models import Category
+from users.serializers import TinyUserSerializer
 
 
 class PerkSerializer(serializers.ModelSerializer):
@@ -29,6 +30,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
 
     perks = PerkSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    host = TinyUserSerializer(read_only=True)
 
 
 class ExperienceDetailSerializer(serializers.ModelSerializer):
@@ -48,10 +50,12 @@ class ExperienceDetailSerializer(serializers.ModelSerializer):
             "category",
             "category_id",
             "perk_ids",
+            "host",
         )
 
     perks = PerkSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    host = TinyUserSerializer(read_only=True)
     category_id = serializers.IntegerField(write_only=True)
     perk_ids = serializers.ListField(
         child=serializers.IntegerField(),
