@@ -29,7 +29,7 @@ class Rooms(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = RoomDeatilSerializer(data=request.data)
+        serializer = RoomDetailSerializer(data=request.data)
         if serializer.is_valid():
             # category
             category_pk = request.data.get("category_id")
@@ -71,7 +71,7 @@ class RoomDetail(APIView):
 
     def get(self, request, pk):
         room = self.get_object(pk)
-        serializer = RoomDeatilSerializer(
+        serializer = RoomDetailSerializer(
             room,
             context={"request": request},
         )
