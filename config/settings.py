@@ -167,3 +167,7 @@ LOGGING = {
         }
     }
 }
+
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "common.utils.custom_exception_handler",
+}
