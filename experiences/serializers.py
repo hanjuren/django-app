@@ -64,16 +64,22 @@ class ExperienceDetailSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         category_id = data.get("category_id")
-        if not category_id:
-            raise serializers.ValidationError("Category id is required")
+        perk_ids = data.get("perk_ids")
 
-        try:
-            category = Category.objects.get(pk=category_id)
-            if category.kind != Category.CategoryKindChoices.EXPERIENCES:
-                raise serializers.ValidationError("Category kind should be Experience")
-        except Category.DoesNotExist:
-            raise exceptions.NotFound("Not Found")
+        if category_id:
+            try:
+                category = Category.objects.get(pk=category_id)
+                if category.kind != Category.CategoryKindChoices.EXPERIENCES:
+                    raise serializers.ValidationError("Category kind should be Experience")
+            except Category.DoesNotExist:
+                raise exceptions.NotFound("Not Found")
+        else:
+            if not self.partial:
+                raise serializers.ValidationError("Category id is required")
 
-        del data['perk_ids']
+        if perk_ids:
+            if not hasattr(perk_ids, "__len__"):
+                raise exceptions.ValidationError("perk_ids is not array.")
+            del data["perk_ids"]
 
         return data

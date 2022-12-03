@@ -52,6 +52,51 @@ class ExperienceList(APIView, BaseHelper):
             )
 
 
+class ExperienceDetail(APIView):
+
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return models.Experience.objects.get(pk=pk)
+        except models.Experience.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get(self, request, pk):
+        experience = self.get_object(pk)
+        serializer = serializers.ExperienceDetailSerializer(experience)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        experience = self.get_object(pk)
+        serializer = serializers.ExperienceDetailSerializer(
+            experience,
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    experience = serializer.save()
+                    experience.add_perks(request.data.get("perk_ids", []))
+            except Exception as e:
+                raise exceptions.ParseError(e)
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK,
+            )
+        else:
+            raise exceptions.ParseError(serializer.errors)
+
+    def delete(self, request, pk):
+        experience = self.get_object(pk)
+        if experience.host != request.user:
+            raise exceptions.PermissionDenied
+        experience.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class Perks(APIView):
 
     def get(self, request):
