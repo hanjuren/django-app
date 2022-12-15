@@ -158,6 +158,41 @@ class ExperienceBookings(APIView, BaseHelper):
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
+class ExperienceBookingDetail(APIView):
+
+    def get_booking(self, pk):
+        try:
+            return Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get(self, request, pk, booking_pk):
+        booking = self.get_booking(booking_pk)
+        serializer = PublicBookingSerializer(booking)
+        return Response(serializer.data)
+
+    def put(self, request, pk, booking_pk):
+        booking = self.get_booking(booking_pk)
+
+        if booking.user != request.user:
+            raise exceptions.PermissionDenied
+
+        serializer = CreateExperienceBookingSerializer(booking, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def delete(self, request, pk, booking_pk):
+        booking = self.get_booking(booking_pk)
+
+        if booking.user != request.user:
+            raise exceptions.PermissionDenied
+
+        booking.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class Perks(APIView):
 
