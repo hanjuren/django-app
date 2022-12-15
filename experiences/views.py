@@ -1,11 +1,16 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, exceptions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 from . import models, serializers
 from users.models import User
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer, CreateExperienceBookingSerializer
+
 from common.base_helper import BaseHelper
 
 
@@ -13,15 +18,13 @@ class ExperienceList(APIView, BaseHelper):
     # permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
-        print(request.headers)
         queryset = models.Experience \
             .objects \
             .all() \
             .order_by("-created_at")
 
         total = queryset.count()
-        records = queryset \
-            .prefetch_related("perks", "category", "host")[self.offset(request):self.limit(request)]
+        records = queryset.prefetch_related("perks", "category", "host")[self.offset(request):self.limit(request)]
 
         return Response(
             {
@@ -112,6 +115,48 @@ class ExperiencePerks(APIView, BaseHelper):
                 "records": serializers.PerkSerializer(records, many=True).data,
             }
         )
+
+
+class ExperienceBookings(APIView, BaseHelper):
+
+    def get_object(self, pk):
+        try:
+            return models.Experience.objects.get(pk=pk)
+        except models.Experience.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get(self, request, pk):
+        queryset = Booking \
+            .objects \
+            .filter(
+                room=pk,
+                kind=Booking.BookingKindChoices.EXPERIENCE,
+                experience_time__gt=timezone.localtime().date(),
+            ) \
+            .order_by("-created_at")
+
+        total = queryset.count()
+        records = queryset.prefetch_related("experience", "user")[self.offset(request):self.limit(request)]
+
+        return Response(
+            {
+                "total": total,
+                "records": PublicBookingSerializer(records, many=True).data,
+            }
+        )
+
+    def post(self, request, pk):
+        serializer = CreateExperienceBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                experience=pk,
+                user=request.user,
+                kind=Booking.BookingKindChoices.EXPERIENCE,
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
 
 
 class Perks(APIView):

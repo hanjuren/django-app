@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Booking
 
 
-class CreateBookingSerializer(serializers.ModelSerializer):
+class CreateRoomBookingSerializer(serializers.ModelSerializer):
 
     check_in = serializers.DateField()
     check_out = serializers.DateField()
@@ -37,6 +37,22 @@ class CreateBookingSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError("Those (or some) of those dates are already taken.")
         return attrs
+
+
+class CreateExperienceBookingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Booking
+        fields = (
+            "experience_time",
+            "guests",
+        )
+
+    def validate_experience_time(self, value):
+        now = timezone.localtime().data()
+        if value < now:
+            raise serializers.ValidationError("Cat't book in the past.")
+        return value
 
 
 class PublicBookingSerializer(serializers.ModelSerializer):
