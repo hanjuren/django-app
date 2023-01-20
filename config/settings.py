@@ -29,7 +29,10 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-THIRD_PARTY_APPS = ["rest_framework"]
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken",
+]
 
 CUSTOM_APPS = [
     "common.apps.CommonConfig",
@@ -171,7 +174,8 @@ LOGGING = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        "config.authentication.TrustMeBroAuthentication"
+        "config.authentication.TrustMeBroAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ],
     "EXCEPTION_HANDLER": "common.utils.custom_exception_handler",
 }
