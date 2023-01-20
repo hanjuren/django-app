@@ -176,6 +176,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "config.authentication.TrustMeBroAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "config.authentication.JWTAuthentication",
     ],
     "EXCEPTION_HANDLER": "common.utils.custom_exception_handler",
 }
