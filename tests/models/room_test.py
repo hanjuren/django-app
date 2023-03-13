@@ -1,8 +1,5 @@
 import pytest
-from django.conf import settings
-
 from tests.factories import *
-from users.models import User
 
 pytestmark = pytest.mark.django_db
 
