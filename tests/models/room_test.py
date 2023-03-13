@@ -1,4 +1,6 @@
 import pytest
+from django.conf import settings
+
 from tests.factories import *
 from users.models import User
 
@@ -7,7 +9,7 @@ pytestmark = pytest.mark.django_db
 
 class TestRoom:
     @pytest.fixture(autouse=True)
-    def setup(self):
+    def before(self):
         self.user = UserFactory.create()
         self.room = RoomFactory.create(
             name="테스트 룸",
@@ -31,3 +33,18 @@ class TestRoom:
         )
 
         assert self.room.rating() == 4
+
+    def test_add_amenities(self):
+        amenity_ids = []
+        for name in ["test amenity 1", "test amenity 2"]:
+            amenity = AmenityFactory.create(name=name)
+            amenity_ids.append(amenity.pk)
+        self.room.add_amenities(amenity_ids)
+
+        assert self.room.amenities.count() == 2
+
+        # duplicate amenity add is not working
+        self.room.add_amenities(amenity_ids[0:1])
+
+        assert self.room.amenities.count() != 3
+        assert self.room.amenities.count() == 2
