@@ -4,8 +4,9 @@ from common.models import CommonModel
 
 
 class Room(CommonModel):
-
     """Room Definition"""
+
+    objects = models.Manager()
 
     class Meta:
         db_table = "rooms"
@@ -72,9 +73,13 @@ class Room(CommonModel):
             total_rating = sum(list(map(lambda r: r['rating'], reviews)), 0)
             return round(total_rating / count, 2)
 
+    def add_amenities(self, amenity_ids):
+        for amenity_pk in amenity_ids:
+            amenity = Amenity.objects.filter(pk=amenity_pk).values("pk").first()
+            self.amenities.add(amenity['pk'])
+
 
 class Amenity(CommonModel):
-
     """Amenity Definition"""
 
     class Meta:
@@ -92,4 +97,3 @@ class Amenity(CommonModel):
 
     def __str__(self):
         return self.name
-

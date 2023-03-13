@@ -85,6 +85,21 @@ docs = ["furo (>=2021.8.17b43,<2021.9.0)", "sphinx (>=3.5.0)", "sphinx-notfound-
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
 
 [[package]]
+name = "django-sqlformatter"
+version = "1.0.3"
+description = "Better SQL formatter for Django"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-sqlformatter-1.0.3.tar.gz", hash = "sha256:def5a41cded7c68c2af517e8fe1cc33120431e2c2fec6a84b63c41bcf824791f"},
+]
+
+[package.dependencies]
+pygments = "*"
+sqlparse = "*"
+
+[[package]]
 name = "djangorestframework"
 version = "3.14.0"
 description = "Web APIs for Django, made easy."
@@ -355,6 +370,21 @@ files = [
 ]
 
 [[package]]
+name = "pygments"
+version = "2.14.0"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "Pygments-2.14.0-py3-none-any.whl", hash = "sha256:fa7bd7bd2771287c0de303af8bfdfc731f51bd2c6a47ab69d117138893b82717"},
+    {file = "Pygments-2.14.0.tar.gz", hash = "sha256:b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"},
+]
+
+[package.extras]
+plugins = ["importlib-metadata"]
+
+[[package]]
 name = "pyjwt"
 version = "2.6.0"
 description = "JSON Web Token implementation in Python"
@@ -523,4 +553,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1a9501389544d6f0629c907d3e8c0e7a63616b6a5d4a900f33fd708c3bc9869b"
+content-hash = "40c90f7ae7f7d06584b8458014d951e26acfcafc114286cbc13c3b3fbd98b965"

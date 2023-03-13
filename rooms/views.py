@@ -16,13 +16,12 @@ from medias.serializers import PhotoSerializer
 
 
 class Rooms(APIView):
-
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
-        rooms = Room.objects.all()
+        query_set = Room.objects.all()
         serializer = RoomListSerializer(
-            rooms,
+            query_set,
             many=True,
             context={"request": request}
         )
@@ -30,37 +29,32 @@ class Rooms(APIView):
 
     def post(self, request):
         serializer = RoomDetailSerializer(data=request.data)
-        if serializer.is_valid():
-            # category
-            category_pk = request.data.get("category_id")
-            if not category_pk:
-                raise exceptions.ParseError("Category is required.")
-            try:
-                category = Category.objects.get(pk=category_pk)
-                if category.kind == Category.CategoryKindChoices.EXPERIENCES:
-                    raise exceptions.ParseError("Category kind should be Rooms")
-            except Category.DoesNotExist:
-                raise exceptions.NotFound("Category Not Found")
 
-            try:
-                with transaction.atomic():
-                    room = serializer.save(
-                        owner=request.user,
-                        category=category,
-                    )
-                    # amenities
-                    for pk in request.data.get("amenity_ids", []):
-                        amenity = Amenity.objects.get(pk=pk)
-                        room.amenities.add(amenity)
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except Exception:
-                raise exceptions.ParseError("Create Room Fail")
-        else:
+        if serializer.is_valid() is False:
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        category_pk = request.data.get("category_id")
+
+        if not category_pk:
+            raise exceptions.ParseError("Category is required.")
+
+        category = Category.objects.filter(pk=category_pk).first()
+        if category:
+            if category.kind != Category.CategoryKindChoices.ROOMS:
+                raise exceptions.ParseError("Category kind should be Rooms")
+        try:
+            with transaction.atomic():
+                room = serializer.save(
+                    owner=request.user,
+                    category=category,
+                )
+                room.add_amenities(request.data.get("amenity_ids", []))
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception:
+            raise exceptions.ParseError("Create Room Fail")
 
 
 class RoomDetail(APIView):
-
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
@@ -128,7 +122,6 @@ class RoomDetail(APIView):
 
 
 class RoomReviews(APIView):
-
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
@@ -194,7 +187,6 @@ class RoomAmenities(APIView):
 
 
 class RoomPhotos(APIView):
-
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
@@ -261,7 +253,6 @@ class AmenityDetail(APIView):
 
 
 class RoomBookings(APIView):
-
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
