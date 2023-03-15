@@ -1,22 +1,23 @@
 import pytest
 import json
-from tests.factories import *
-from tests.conftest import *
 
 pytestmark = pytest.mark.django_db
 
 
 class TestRoomApi:
-    url_prefix = "/api/v1/rooms/"
+    @pytest.fixture(autouse=True)
+    def set_up(self, client):
+        self.url_prefix = "/api/v1/rooms/"
+        self.client = client
 
-    def test_rooms(self, client):
-        user = UserFactory.create()
-        RoomFactory.create_batch(5, owner=user)
+    def test_rooms(self, user_factory, room_factory):
+        user = user_factory.create()
+        room_factory.create_batch(5, owner=user)
 
-        response = client.get("/api/v1/rooms/")
-        data = json_response(response)
+        response = self.client.get(self.url_prefix)
+        data = response.get('json_response')
 
-        assert response.status_code == 200
+        assert response.get('status_code') == 200
         assert isinstance(data, list)
         assert len(data) == 5
 

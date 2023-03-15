@@ -13,15 +13,54 @@ register(AmenityFactory)
 register(ReviewFactory)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def override_debug_option():
     settings.DEBUG = True
 
 
+class ClientRequest:
+    def __init__(self, client):
+        self.client = client
+
+    def get(self, url, data=None):
+        res = self.client.get(
+            url,
+            data or {},
+            content_type="application/json"
+        )
+        return {
+            'response': res,
+            'status_code': res.status_code,
+            'json_response': json.loads(res.content),
+        }
+
+    # def __call__(self, http_method, url, data=None):
+    #     content_type = "application/json"
+    #
+    #     if http_method == "get":
+    #         res = self.client.get(
+    #             url, {}, content_type=content_type
+    #         )
+    #     elif http_method == "post":
+    #         res = self.client.post(
+    #             url,
+    #             json.dumps(data),
+    #             content_type=content_type
+    #         )
+    #     elif http_method == "del":
+    #         res = self.client.delete(
+    #             url, {}, content_type=content_type
+    #         )
+    #     else:
+    #         res = self.client.put(
+    #             url,
+    #             json.dumps(data),
+    #             content_type=content_type
+    #         )
+    #     return res
+
+
 @pytest.fixture
 def client():
-    return APIClient()
-
-
-def json_response(res):
-    return json.loads(res.content)
+    client = APIClient()
+    return ClientRequest(client)
