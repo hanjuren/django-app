@@ -1,7 +1,39 @@
 from .base import *
 
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'formatters': {
+        'sql': {
+            '()': 'django_sqlformatter.SqlFormatter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        },
+        'sql_console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'sql',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['sql_console'],
+            'level': 'DEBUG',
+        }
+    }
+}
+
 
 DATABASES = {
     "default": {
@@ -9,7 +41,7 @@ DATABASES = {
         'NAME': 'backend',
         'USER': env("POSTGRES_USER"),
         'PASSWORD': env('POSTGRES_PASSWORD'),
-        'HOST': 'localhost',
+        'HOST': 'django_database',
         'PORT': '5432',
     }
 }
