@@ -5,6 +5,7 @@ from django.conf import settings
 
 
 urls = [
+    path("auth/", include("authorization.urls")),
     path("rooms/", include("rooms.urls")),
     path("categories/", include("categories.urls")),
     path("experiences/", include("experiences.urls")),

@@ -1,15 +1,17 @@
 from django.urls import path
-from rest_framework.authtoken.views import obtain_auth_token
 from . import views
 
 
 urlpatterns = [
+    # /api/v1/users/
     path("", views.Users.as_view()),
+    # /api/v1/users/me/
     path("me/", views.Me.as_view()),
-    path("change-password/", views.ChangePassword.as_view()),
-    path("sign-in/", views.SignIn.as_view()),
+    # /api/v1/users/password
+    path("password/", views.ChangePassword.as_view()),
+    # /api/v1/sign_up
+    path("sign_in/", views.SignIn.as_view()),
     path("sign-out/", views.SignOut.as_view()),
-    path("token-login/", obtain_auth_token),
-    path("jwt-login/", views.JWTLogIn.as_view()),
+
     path("@<str:username>/", views.PublicUser.as_view()),
 ]

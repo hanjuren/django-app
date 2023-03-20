@@ -2,6 +2,20 @@ from rest_framework.serializers import ModelSerializer
 from .models import User
 
 
+class SignUpSerializer(ModelSerializer):
+    """
+    유저 생성
+    """
+    class Meta:
+        model = User
+        fields = (
+            "pk",
+            "email",
+            "password",
+            "name",
+        )
+
+
 class TinyUserSerializer(ModelSerializer):
 
     class Meta:

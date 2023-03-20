@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ('authorization', '0012_alter_user_first_name_max_length'),
     ]
 
     operations = [
@@ -35,8 +35,8 @@ class Migration(migrations.Migration):
                 ('gender', models.CharField(choices=[('male', 'Male'), ('female', 'Female')], max_length=10)),
                 ('language', models.CharField(choices=[('kr', 'Korea'), ('en', 'English')], max_length=2)),
                 ('currency', models.CharField(choices=[('won', 'Korea Won'), ('usd', 'Dollar')], max_length=30)),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='authorization.group', verbose_name='groups')),
+                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='authorization.permission', verbose_name='user permissions')),
             ],
             options={
                 'db_table': 'users',
