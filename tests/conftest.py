@@ -34,6 +34,16 @@ class ClientRequest:
             'json_response': json.loads(res.content),
         }
 
+    def post(self, url, data=None, token=None):
+        if token:
+            self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+        res = self.client.post(
+            url,
+            json.dumps(data),
+            content_type="application/json",
+        )
+        return res
+
     # def __call__(self, http_method, url, data=None):
     #     content_type = "application/json"
     #
