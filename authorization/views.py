@@ -16,4 +16,14 @@ class SignUp(APIView):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
 
-        return Response({"success": True})
+        user = serializer.save()
+        user.set_password(request.data.get('password'))
+        user.save()
+        access_token = user.gen_jwt_token()
+
+        result = {
+            "success": True,
+            "token": access_token,
+        }
+
+        return Response(result, status=status.HTTP_201_CREATED)

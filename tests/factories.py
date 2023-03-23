@@ -1,5 +1,5 @@
+import secrets
 import factory
-
 from reviews.models import Review
 from users.models import User
 from rooms.models import Room, Amenity
@@ -10,8 +10,9 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence(lambda n: f"Test User - {n}")
     email = "test@gmail.com"
+    password = secrets.token_urlsafe(10)
+    username = factory.Sequence(lambda n: f"Test User - {n}")
     is_staff = True
     is_active = True
     first_name = "Py"
