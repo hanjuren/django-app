@@ -99,18 +99,18 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.authorization.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.authorization.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.authorization.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.authorization.password_validation.NumericPasswordValidator",
-    },
+    # {
+    #     "NAME": "django.contrib.authorization.password_validation.UserAttributeSimilarityValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.authorization.password_validation.MinimumLengthValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.authorization.password_validation.CommonPasswordValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.authorization.password_validation.NumericPasswordValidator",
+    # },
 ]
 
 
@@ -143,7 +143,6 @@ MEDIA_ROOT = "uploads"
 MEDIA_URL = "user-uploads/"
 
 PAGE_SIZE = 3
-
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
