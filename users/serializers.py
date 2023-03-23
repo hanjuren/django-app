@@ -12,7 +12,6 @@ class SignUpSerializer(ModelSerializer):
             "pk",
             "email",
             "password",
-            "name",
         )
 
 
