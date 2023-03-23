@@ -27,25 +27,6 @@ class Me(APIView):
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-class Users(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        password = request.data.get("password")
-        if not password:
-            raise exceptions.ParseError("password is required.")
-
-        serializer = serializers.PrivateUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            user.set_password(password)
-            user.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-
 class PublicUser(APIView):
 
     def get(self, request, username):
