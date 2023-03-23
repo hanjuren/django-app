@@ -3,8 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    # /api/v1/users/
-    path("", views.Users.as_view()),
     # /api/v1/users/me/
     path("me/", views.Me.as_view()),
     # /api/v1/users/password
