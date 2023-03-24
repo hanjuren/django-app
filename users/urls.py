@@ -7,9 +7,6 @@ urlpatterns = [
     path("me/", views.Me.as_view()),
     # /api/v1/users/password
     path("password/", views.ChangePassword.as_view()),
-    # /api/v1/sign_up
-    path("sign_in/", views.SignIn.as_view()),
     path("sign-out/", views.SignOut.as_view()),
-
     path("@<str:username>/", views.PublicUser.as_view()),
 ]
