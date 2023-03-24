@@ -9,9 +9,13 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         header = request.headers.get("Authorization", "")
-        if not header:
-            return None
+        print(header)
+
         jwt_token = header.replace("Bearer ", '')
+
+        if not jwt_token:
+            raise AuthenticationFailed("Unauthorized")
+
         decoded = jwt.decode(
             jwt_token,
             settings.SECRET_KEY,
