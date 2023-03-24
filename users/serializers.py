@@ -6,6 +6,7 @@ class SignUpSerializer(ModelSerializer):
     """
     유저 생성
     """
+
     class Meta:
         model = User
         fields = (
@@ -15,8 +16,27 @@ class SignUpSerializer(ModelSerializer):
         )
 
 
-class TinyUserSerializer(ModelSerializer):
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "pk",
+            "email",
+            "name",
+            "is_active",
+            "first_name",
+            "last_name",
+            "is_host",
+            "avatar",
+            "gender",
+            "language",
+            "currency",
+            "created_at",
+            "updated_at",
+        )
 
+
+class TinyUserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = (
@@ -28,7 +48,6 @@ class TinyUserSerializer(ModelSerializer):
 
 
 class PrivateUserSerializer(ModelSerializer):
-
     class Meta:
         model = User
         exclude = (
