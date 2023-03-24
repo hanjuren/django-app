@@ -21,7 +21,7 @@ class User(AbstractUser, CommonModel):
         WON = "won", "Korea Won"
         USD = "usd", "Dollar"
 
-    email = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, unique=True)
     username = models.CharField(max_length=30, null=True)
     first_name = models.CharField(max_length=150, null=True)
     last_name = models.CharField(max_length=150, null=True)
@@ -35,7 +35,8 @@ class User(AbstractUser, CommonModel):
     class Meta:
         db_table = "users"
 
-    USERNAME_FIELD = "id"
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     def __str__(self):
         return f"<User id: {self.id}, email: {self.email}>"

@@ -6,19 +6,16 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is not None:
-        http_code_to_message = {v.value: v.description for v in HTTPStatus}
         error_payload = {
             "error": {
                 "status_code": 0,
-                "message": "",
-                "details": [],
+                "message": [],
             }
         }
         error = error_payload["error"]
         status_code = response.status_code
 
         error["status_code"] = status_code
-        error["message"] = http_code_to_message[status_code]
-        error["details"] = response.data
+        error["message"] = response.data.get('detail')
         response.data = error_payload
     return response
