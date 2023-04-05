@@ -142,3 +142,5 @@ cython_debug/
 
 docker-compose.env
 docker-compose.env.prod
+.env.dev
+.env.prod
