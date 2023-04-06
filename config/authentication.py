@@ -9,7 +9,6 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         header = request.headers.get("Authorization", "")
-        print(header)
 
         jwt_token = header.replace("Bearer ", '')
 
