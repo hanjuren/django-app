@@ -1,6 +1,7 @@
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta
+from rest_framework.exceptions import AuthenticationFailed
 
 
 def gen_jwt_token(payload, token_type):
@@ -17,4 +18,9 @@ def gen_jwt_token(payload, token_type):
 
 
 def decoded_jwt_token(token):
-    return jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    try:
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError as err:
+        raise AuthenticationFailed(err)
+    except jwt.InvalidTokenError as err:
+        raise AuthenticationFailed(err)
