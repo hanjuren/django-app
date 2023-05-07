@@ -1,0 +1,2 @@
+[run]
+omit = config/*, admin.py, __init__.py, *abc.py, conftest.py, factories.py

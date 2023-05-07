@@ -23,15 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8pvm=kh^&v7x2e$t5u!tf1dgf2yx67ij_px9dk@l$hsefm1m6='
 
-INSTALLED_APPS = [
+CUSTOM_APPS = [
+    'users.apps.UsersConfig',
+    'rooms.apps.RoomsConfig',
+]
+
+SYSTEM_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
 ]
+
+INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
