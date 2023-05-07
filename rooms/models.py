@@ -19,13 +19,13 @@ class Room(models.Model):
     kind = models.CharField(choices=KindChoices.choices)
     user = models.ForeignKey(
         "users.User",
-        related_name="user",
+        related_name="rooms",
         db_column="user_id",
         on_delete=models.CASCADE,
     )
     amenities = models.ManyToManyField(
         "rooms.Amenity",
-        related_name="amenities",
+        related_name="rooms",
         db_table="room_amenities"
     )
     created_at = models.DateTimeField(auto_now_add=True)
