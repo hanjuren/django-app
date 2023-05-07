@@ -1,7 +1,11 @@
 import factory
 import secrets
+
+from django.utils import timezone
+
 from users.models import User
 from rooms.models import Room, Amenity
+from experiences.models import Experience, Perk
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -26,7 +30,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 class RoomFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Test Room - {n}")
     country = "korea"
-    city = "seoul"
+    city = "uiwang"
     price = 89000
     rooms = 1
     toilets = 1
@@ -46,3 +50,27 @@ class AmenityFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Amenity
+
+
+class PerkFactory(factory.django.DjangoModelFactory):
+    name = factory.Sequence(lambda n: f"Test Perk - {n}")
+    detail = "Test Perk detail"
+    description = "Test Perk description"
+
+    class Meta:
+        model = Perk
+
+
+class ExperienceFactory(factory.django.DjangoModelFactory):
+    name = factory.Sequence(lambda n: f"Test Experience - {n}")
+    description = "Test Experience description"
+    country = "korea"
+    city = "uiwang"
+    price = 85000
+    address = "23 Poilsegeori-ro, Uiwang-si, Gyeonggi-do"
+    started_at = timezone.now()
+    finished_at = timezone.now()
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = Experience

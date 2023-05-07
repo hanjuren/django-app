@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-8pvm=kh^&v7x2e$t5u!tf1dgf2yx67ij_px9dk@l$hsefm1m6=
 CUSTOM_APPS = [
     'users.apps.UsersConfig',
     'rooms.apps.RoomsConfig',
+    'experiences.apps.ExperiencesConfig',
 ]
 
 SYSTEM_APPS = [

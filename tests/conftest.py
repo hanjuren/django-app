@@ -1,8 +1,12 @@
 import pytest
 from pytest_factoryboy import register
-from factories import UserFactory, RoomFactory, AmenityFactory
+from factories import \
+    UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory
 
 
-register(UserFactory)
-register(RoomFactory)
-register(AmenityFactory)
+factories = [
+    UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory,
+]
+
+for factory in factories:
+    register(factory)

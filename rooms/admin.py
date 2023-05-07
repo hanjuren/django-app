@@ -4,6 +4,7 @@ from .models import Room, Amenity
 
 class RoomAdmin(admin.ModelAdmin):
     list_display = (
+        "name",
         "price",
         "kind",
         "user_id",
