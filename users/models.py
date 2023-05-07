@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
 class CustomUserManager(BaseUserManager):
@@ -23,11 +23,12 @@ class CustomUserManager(BaseUserManager):
             name=name
         )
         user.is_admin = True
+        user.is_staff = True
         user.save(using=self._db)
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     class GenderChoices(models.TextChoices):
         MALE = ("male", "Male")
         FEMALE = ("female", "Female")
@@ -51,9 +52,16 @@ class User(AbstractBaseUser):
     language = models.CharField(max_length=2, choices=LanguageChoices.choices, null=True)
     currency = models.CharField(max_length=30, choices=CurrencyChoices.choices, null=True)
     is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # methods
+
+    @property
+    def is_superuser(self):
+        return self.is_admin
 
     class Meta:
         db_table = 'users'

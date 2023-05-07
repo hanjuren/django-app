@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
                 ('language', models.CharField(choices=[('kr', 'Korea'), ('en', 'English')], max_length=2, null=True)),
                 ('currency', models.CharField(choices=[('won', 'Korea Won'), ('usd', 'Dollar')], max_length=30, null=True)),
                 ('is_admin', models.BooleanField(default=False)),
+                ('is_staff', models.BooleanField(default=False)),
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
