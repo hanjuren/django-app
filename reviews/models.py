@@ -31,3 +31,6 @@ class Review(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} / {self.rating}"
+
+    class Meta:
+        db_table = "reviews"
