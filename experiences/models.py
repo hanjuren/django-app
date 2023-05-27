@@ -23,6 +23,13 @@ class Experience(models.Model):
         related_name="experiences",
         db_table="experience_perks",
     )
+    category = models.ForeignKey(
+        "categories.Category",
+        related_name="experiences",
+        db_column="category_id",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.name
