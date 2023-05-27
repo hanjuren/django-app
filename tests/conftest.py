@@ -2,12 +2,12 @@ import pytest
 from pytest_factoryboy import register
 from factories import \
     UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory, CategoryFactory, \
-    ReviewFactory
+    ReviewFactory, WishlistFactory
 
 
 factories = [
     UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory, CategoryFactory,
-    ReviewFactory
+    ReviewFactory, WishlistFactory
 ]
 
 for factory in factories:

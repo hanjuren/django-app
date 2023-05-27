@@ -8,6 +8,7 @@ from rooms.models import Room, Amenity
 from experiences.models import Experience, Perk
 from categories.models import Category
 from reviews.models import Review
+from wishlists.models import Wishlist
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -97,3 +98,11 @@ class ReviewFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Review
+
+
+class WishlistFactory(factory.django.DjangoModelFactory):
+    name = "Test Wishlist"
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = Wishlist
