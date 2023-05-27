@@ -58,6 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     # methods
+    def __str__(self) -> str:
+        return self.name
 
     @property
     def is_superuser(self):

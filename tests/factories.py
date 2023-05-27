@@ -7,6 +7,7 @@ from users.models import User
 from rooms.models import Room, Amenity
 from experiences.models import Experience, Perk
 from categories.models import Category
+from reviews.models import Review
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -85,3 +86,14 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Category
+
+
+class ReviewFactory(factory.django.DjangoModelFactory):
+    payload = "Test Review"
+    rating = 4
+    user = factory.SubFactory(UserFactory)
+    room = None
+    experience = None
+
+    class Meta:
+        model = Review
