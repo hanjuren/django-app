@@ -6,6 +6,7 @@ from django.utils import timezone
 from users.models import User
 from rooms.models import Room, Amenity
 from experiences.models import Experience, Perk
+from categories.models import Category
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -39,6 +40,7 @@ class RoomFactory(factory.django.DjangoModelFactory):
     pet_friendly = False
     kind = "entire_place"
     user = factory.SubFactory(UserFactory)
+    category = None
 
     class Meta:
         model = Room
@@ -71,6 +73,15 @@ class ExperienceFactory(factory.django.DjangoModelFactory):
     started_at = timezone.now()
     finished_at = timezone.now()
     user = factory.SubFactory(UserFactory)
+    category = None
 
     class Meta:
         model = Experience
+
+
+class CategoryFactory(factory.django.DjangoModelFactory):
+    name = "Test Rooms Category"
+    kind = "rooms"
+
+    class Meta:
+        model = Category
