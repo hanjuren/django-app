@@ -18,6 +18,7 @@ class ExperienceAdmin(admin.ModelAdmin):
         "city",
         "started_at",
         "finished_at",
+        "category",
     )
 
 

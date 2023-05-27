@@ -30,6 +30,13 @@ class Room(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(
+        "categories.Category",
+        related_name="rooms",
+        db_column="category_id",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.name
