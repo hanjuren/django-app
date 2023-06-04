@@ -8,6 +8,8 @@ class RoomAdmin(admin.ModelAdmin):
         "price",
         "kind",
         "user_id",
+        "total_amenities",
+        "reviews_rating",
         "created_at",
         "updated_at",
     )

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 
 
 class Room(models.Model):
@@ -40,6 +41,13 @@ class Room(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def total_amenities(self) -> int:
+        return self.amenities.count()
+
+    def reviews_rating(self) -> int:
+        rating = self.reviews.aggregate(rating=Avg("rating"))['rating'] or 0
+        return round(rating, 2)
 
     class Meta:
         db_table = "rooms"
