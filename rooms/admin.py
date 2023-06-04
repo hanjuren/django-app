@@ -17,6 +17,11 @@ class RoomAdmin(admin.ModelAdmin):
         "country",
         "kind",
     )
+    search_fields = (
+        "^name",
+        "=price",
+        "user__name",
+    )
 
 
 class AmenityAdmin(admin.ModelAdmin):
