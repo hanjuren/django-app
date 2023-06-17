@@ -1,2 +1,2 @@
 from .response_serializer import CategoryResponseSerializer
-from .validation_serializers import CategoryCreationSerializer
+from .validation_serializers import CategoryCreationSerializer, CategoryUpdateSerializer
