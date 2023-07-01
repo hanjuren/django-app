@@ -20,6 +20,7 @@ from django.urls import path, include
 urls = [
     path("/rooms", include("rooms.urls")),
     path("/categories", include("categories.urls")),
+    path("/experiences", include("experiences.urls")),
 ]
 
 urlpatterns = [
