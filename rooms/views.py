@@ -34,8 +34,10 @@ class Amenities(APIView):
             )
 
 
-def see_one_room(request, id_):
-    return HttpResponse(f"see one room. {id_}")
+class AmenityDetail(APIView):
+    def get(self, request, id_):
+        amenity = Amenity.objects.get(id=id_)
+        return Response(AmenityResponseSerializer(amenity).data)
 
 
 def see_one_order(request, name):

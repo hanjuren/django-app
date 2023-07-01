@@ -65,3 +65,33 @@ class TestPostAmenitiesAPI:
         assert json_response["name"] == "create amenity."
         assert json_response["description"] == "create amenity test."
         assert Amenity.objects.count() == 1
+
+
+# GET /api/v1/rooms/amenities/1
+class TestGetAmenity:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, amenity_factory):
+        self.client = client
+        self.amenity = amenity_factory.create()
+        self.url = f"/api/v1/rooms/amenities/{self.amenity.id}"
+
+    def test_record_not_found(self):
+        res = self.client.get("/api/v1/rooms/amenities/-1")
+        assert res.status_code == 404
+
+    def test_get_amenity(self):
+        res = self.client.get(self.url)
+        json_response = res.json()
+
+        assert res.status_code == 200
+        assert json_response["id"] == self.amenity.id
+        assert set(json_response.keys()).issubset(
+            {
+                "id",
+                "name",
+                "description",
+                "created_at",
+                "updated_at",
+            }
+        )
+
