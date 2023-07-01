@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
 from rooms.models import Amenity
 from rooms.serializers import AmenityResponseSerializer, AmenityCreationSerializer, AmenityUpdateSerializer
