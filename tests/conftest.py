@@ -8,14 +8,14 @@ from datetime import timedelta
 
 from factories import \
     UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory, CategoryFactory, \
-    ReviewFactory, WishlistFactory
+    ReviewFactory, WishlistFactory, ChattingRoomFactory, MessageFactory
 
 from bookings.models import Booking
 
 
 factories = [
     UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory, CategoryFactory,
-    ReviewFactory, WishlistFactory
+    ReviewFactory, WishlistFactory, ChattingRoomFactory, MessageFactory
 ]
 
 for factory in factories:
