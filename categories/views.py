@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_201_CREATED, HTTP_422_UNPROCESSABLE_ENTITY
 from rest_framework.response import Response

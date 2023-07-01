@@ -1,4 +1,7 @@
+import json
+
 import pytest
+from rest_framework.test import APIClient
 from pytest_factoryboy import register
 from django.utils import timezone
 from datetime import timedelta
@@ -17,6 +20,36 @@ factories = [
 
 for factory in factories:
     register(factory)
+
+
+class ClientRequest:
+    def __init__(self, client):
+        self.client = client
+
+    def params(self, data):
+        return json.dumps(data) if data else {}
+
+    def get(self, url, data=None, user=None):
+        res = self.client.get(
+            url,
+            self.params(data),
+            content_type="application/json"
+        )
+        return res
+
+    def post(self, url, data=None, user=None):
+        res = self.client.post(
+            url,
+            self.params(data),
+            content_type="application/json"
+        )
+        return res
+
+
+@pytest.fixture
+def client():
+    client = APIClient()
+    return ClientRequest(client)
 
 
 @pytest.fixture()
