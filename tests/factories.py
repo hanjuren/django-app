@@ -9,6 +9,7 @@ from experiences.models import Experience, Perk
 from categories.models import Category
 from reviews.models import Review
 from wishlists.models import Wishlist
+from direct_messages.models import ChattingRoom, Message
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -106,3 +107,17 @@ class WishlistFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Wishlist
+
+
+class ChattingRoomFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ChattingRoom
+
+
+class MessageFactory(factory.django.DjangoModelFactory):
+    text = "test message"
+    user = factory.SubFactory(UserFactory)
+    chatting_room = factory.SubFactory(ChattingRoomFactory)
+
+    class Meta:
+        model = Message
