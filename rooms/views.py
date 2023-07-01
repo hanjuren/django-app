@@ -39,6 +39,23 @@ class AmenityDetail(APIView):
         amenity = Amenity.objects.get(id=id_)
         return Response(AmenityResponseSerializer(amenity).data)
 
+    def put(self, request, id_):
+        amenity = Amenity.objects.get(id=id_)
+        serializer = AmenityUpdateSerializer(
+            amenity,
+            data=request.data,
+        )
 
-def see_one_order(request, name):
-    return HttpResponse(f"{name}")
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        else:
+            serializer.save()
+            return Response(AmenityResponseSerializer(amenity).data)
+
+    def delete(self, request, id_):
+        amenity = Amenity.objects.get(id=id_)
+        amenity.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
