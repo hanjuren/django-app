@@ -6,4 +6,6 @@ pytestmark = pytest.mark.django_db
 
 
 class TestPhoto:
-    pass
+    def test_str(self):
+        photo = Photo()
+        assert str(photo) == "Photo file"
