@@ -95,3 +95,58 @@ class TestGetAmenity:
             }
         )
 
+
+# PUT /api/v1/rooms/amenities/1
+class TestPutAmenity:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, amenity_factory):
+        self.client = client
+        self.amenity = amenity_factory.create()
+        self.url = f"/api/v1/rooms/amenities/{self.amenity.id}"
+
+    def test_record_not_found(self):
+        res = self.client.put("/api/v1/rooms/amenities/-1")
+        assert res.status_code == 404
+
+    def test_required_data(self):
+        res = self.client.put(self.url)
+        json_response = res.json()
+
+        assert res.status_code == 422
+        assert "name" in json_response.keys()
+        assert re.match("이 필드는 필수 항목입니다.", json_response["name"][0])
+
+    def test_update_amenity(self):
+        res = self.client.put(
+            self.url,
+            {
+                "name": "update name",
+                "description": "update description"
+            }
+        )
+        json_response = res.json()
+
+        assert res.status_code == 200
+        assert json_response["name"] == "update name"
+        assert json_response["description"] == "update description"
+
+
+# DELETE /api/v1/rooms/amenities/1
+class TestDeleteAmenity:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, amenity_factory):
+        self.client = client
+        self.amenity = amenity_factory.create()
+        self.url = f"/api/v1/rooms/amenities/{self.amenity.id}"
+
+    def test_record_not_found(self):
+        res = self.client.delete("/api/v1/rooms/amenities/-1")
+        assert res.status_code == 404
+
+    def test_delete_amenity(self):
+        previous_count = Amenity.objects.count()
+
+        res = self.client.delete(self.url)
+
+        assert res.status_code == 204
+        assert Amenity.objects.count() == previous_count - 1

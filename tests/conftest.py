@@ -33,7 +33,7 @@ class ClientRequest:
         res = self.client.get(
             url,
             self.params(data),
-            content_type="application/json"
+            content_type="application/json",
         )
         return res
 
@@ -41,8 +41,20 @@ class ClientRequest:
         res = self.client.post(
             url,
             self.params(data),
-            content_type="application/json"
+            content_type="application/json",
         )
+        return res
+
+    def put(self, url, data=None, user=None):
+        res = self.client.put(
+            url,
+            self.params(data),
+            content_type="application/json",
+        )
+        return res
+
+    def delete(self, url, data=None, user=None):
+        res = self.client.delete(url)
         return res
 
 
