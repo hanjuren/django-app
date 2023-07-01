@@ -35,22 +35,15 @@ class Categories(APIView):
 
 
 class CategoryDetail(APIView):
-    def get_object(self, id_):
-        try:
-            return Category.objects.get(id=id_)
-        except Category.DoesNotExist:
-            raise NotFound
-
     def get(self, request, id_):
-        category = self.get_object(id_)
+        category = Category.objects.get(id=id_)
         return Response(CategoryResponseSerializer(category).data)
 
     def put(self, request, id_):
-        category = self.get_object(id_)
+        category = Category.objects.get(id=id_)
         serializer = CategoryUpdateSerializer(
             category,
             data=request.data,
-            partial=True,
         )
 
         if not serializer.is_valid():
@@ -60,6 +53,6 @@ class CategoryDetail(APIView):
             return Response(CategoryResponseSerializer(category).data)
 
     def delete(self, request, id_):
-        category = self.get_object(id_)
+        category = Category.objects.get(id=id_)
         category.delete()
         return Response(status=HTTP_204_NO_CONTENT)

@@ -10,7 +10,7 @@ class TestRoomAPI:
 
 
 # GET /api/v1/room/amenities
-class TestGetAmenitiesAPI:
+class TestGetAmenities:
     @pytest.fixture(autouse=True)
     def setup(self, client):
         self.client = client
@@ -31,7 +31,7 @@ class TestGetAmenitiesAPI:
 
 
 # POST /api/v1/rooms/amenities
-class TestPostAmenitiesAPI:
+class TestPostAmenities:
     @pytest.fixture(autouse=True)
     def setup(self, client):
         self.client = client
