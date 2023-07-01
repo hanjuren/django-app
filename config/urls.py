@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 
 urls = [
-    path("rooms/", include("rooms.urls")),
-    path("categories/", include("categories.urls")),
+    path("/rooms", include("rooms.urls")),
+    path("/categories", include("categories.urls")),
 ]
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("api/v1/", include(urls)),
+    path('admin', admin.site.urls),
+    path("api/v1", include(urls)),
 ]
