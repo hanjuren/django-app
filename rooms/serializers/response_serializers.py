@@ -6,3 +6,8 @@ class AmenityResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
         fields = "__all__"
+
+
+class AmenityListResponseSerializer(serializers.Serializer):
+    total = serializers.IntegerField()
+    records = AmenityResponseSerializer(many=True)
