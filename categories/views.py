@@ -1,12 +1,15 @@
 from rest_framework.views import APIView
-from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_201_CREATED, HTTP_422_UNPROCESSABLE_ENTITY
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .models import Category
-from .serializers import CategoryResponseSerializer, CategoryCreationSerializer, CategoryUpdateSerializer
+from .serializers import CategoryResponseSerializer, CategoryListSerializer, \
+    CategoryCreationSerializer, CategoryUpdateSerializer
 
 
 class Categories(APIView):
+    @swagger_auto_schema(responses={200: CategoryListSerializer()})
     def get(self, request):
         categories = Category.objects.all()
 
@@ -17,6 +20,10 @@ class Categories(APIView):
             }
         )
 
+    @swagger_auto_schema(
+        request_body=CategoryCreationSerializer,
+        responses={200: CategoryResponseSerializer()}
+    )
     def post(self, request):
         serializer = CategoryCreationSerializer(data=request.data)
 
@@ -35,10 +42,18 @@ class Categories(APIView):
 
 
 class CategoryDetail(APIView):
+    id_ = openapi.Parameter('id_', openapi.IN_PATH, description='category id', required=True, type=openapi.TYPE_NUMBER)
+
+    @swagger_auto_schema(manual_parameters=[id_], responses={200: CategoryResponseSerializer()})
     def get(self, request, id_):
         category = Category.objects.get(id=id_)
         return Response(CategoryResponseSerializer(category).data)
 
+    @swagger_auto_schema(
+        manual_parameters=[id_],
+        request_body=CategoryUpdateSerializer,
+        responses={200: CategoryResponseSerializer()}
+    )
     def put(self, request, id_):
         category = Category.objects.get(id=id_)
         serializer = CategoryUpdateSerializer(
@@ -52,6 +67,7 @@ class CategoryDetail(APIView):
             serializer.save()
             return Response(CategoryResponseSerializer(category).data)
 
+    @swagger_auto_schema(manual_parameters=[id_])
     def delete(self, request, id_):
         category = Category.objects.get(id=id_)
         category.delete()
