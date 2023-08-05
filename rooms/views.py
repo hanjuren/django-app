@@ -1,11 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from drf_yasg.utils import swagger_auto_schema
 from rooms.models import Amenity
-from rooms.serializers import AmenityResponseSerializer, AmenityCreationSerializer, AmenityUpdateSerializer
+from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, \
+    AmenityCreationSerializer, AmenityUpdateSerializer
 
 
 class Amenities(APIView):
+    @swagger_auto_schema(responses={200: AmenityListResponseSerializer()})
     def get(self, request):
         amenities = Amenity.objects.all()
 
@@ -16,6 +19,10 @@ class Amenities(APIView):
             }
         )
 
+    @swagger_auto_schema(
+        request_body=AmenityCreationSerializer,
+        responses={201: AmenityResponseSerializer()}
+    )
     def post(self, request):
         serializer = AmenityCreationSerializer(data=request.data)
 
@@ -34,10 +41,15 @@ class Amenities(APIView):
 
 
 class AmenityDetail(APIView):
+    @swagger_auto_schema(responses={200: AmenityResponseSerializer()})
     def get(self, request, id_):
         amenity = Amenity.objects.get(id=id_)
         return Response(AmenityResponseSerializer(amenity).data)
 
+    @swagger_auto_schema(
+        request_body=AmenityUpdateSerializer,
+        responses={200: AmenityResponseSerializer()}
+    )
     def put(self, request, id_):
         amenity = Amenity.objects.get(id=id_)
         serializer = AmenityUpdateSerializer(
