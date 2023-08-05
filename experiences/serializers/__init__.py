@@ -1,2 +1,2 @@
-from .response_serializers import PerkResponseSerializer
+from .response_serializers import PerkResponseSerializer, PerkListSerializer
 from .validation_serializers import PerkCreationSerializer, PerkUpdateSerializer

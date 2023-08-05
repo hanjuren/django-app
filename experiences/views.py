@@ -1,11 +1,17 @@
+from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 from experiences.models import Perk
-from experiences.serializers import PerkResponseSerializer, PerkCreationSerializer, PerkUpdateSerializer
+from experiences.serializers import PerkResponseSerializer, PerkListSerializer, \
+    PerkCreationSerializer, PerkUpdateSerializer
 
 
 class Perks(APIView):
+    @swagger_auto_schema(responses={200: PerkListSerializer()})
     def get(self, request):
         perks = Perk.objects.all()
 
@@ -16,6 +22,10 @@ class Perks(APIView):
             }
         )
 
+    @swagger_auto_schema(
+        request_body=PerkCreationSerializer,
+        responses={201: PerkResponseSerializer()}
+    )
     def post(self, request):
         serializer = PerkCreationSerializer(data=request.data)
 
@@ -34,10 +44,15 @@ class Perks(APIView):
 
 
 class PerkDetail(APIView):
+    @swagger_auto_schema(responses={200: PerkResponseSerializer()})
     def get(self, request, id_):
         perk = Perk.objects.get(id=id_)
         return Response(PerkResponseSerializer(perk).data)
 
+    @swagger_auto_schema(
+        request_body=PerkUpdateSerializer,
+        responses={200: PerkResponseSerializer()},
+    )
     def put(self, request, id_):
         perk = Perk.objects.get(id=id_)
         serializer = PerkUpdateSerializer(
