@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from rest_framework.exceptions import NotAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from rooms.models import Room, Amenity
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
-    AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer
+    AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
+    RoomCreationSerializer
 
 
 class Rooms(APIView):
@@ -16,6 +18,25 @@ class Rooms(APIView):
                 "total": rooms.count(),
                 "records": RoomsResponseSerializer(rooms, many=True).data,
             }
+        )
+
+    @swagger_auto_schema(
+        request_body=RoomCreationSerializer,
+        responses={200: RoomResponseSerializer()},
+    )
+    def post(self, request):
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+
+        serializer = RoomCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        room = serializer.save(user=request.user)
+        room.add_amenities(request.data.get("amenity_ids", []))
+
+        return Response(
+            RoomResponseSerializer(room).data,
+            status=HTTP_201_CREATED,
         )
 
 

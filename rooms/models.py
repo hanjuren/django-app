@@ -49,6 +49,11 @@ class Room(models.Model):
         rating = self.reviews.aggregate(rating=Avg("rating"))['rating'] or 0
         return round(rating, 2)
 
+    def add_amenities(self, amenity_ids):
+        amenities = Amenity.objects.filter(id__in=amenity_ids)
+        self.amenities.add(*amenities)
+
+
     class Meta:
         db_table = "rooms"
 
