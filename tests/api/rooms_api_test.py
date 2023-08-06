@@ -5,8 +5,75 @@ from rooms.models import Amenity
 pytestmark = pytest.mark.django_db
 
 
-class TestRoomAPI:
-    pass
+# GET /api/v1/rooms
+class TestGetRooms:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory):
+        self.client = client
+        self.url = "/api/v1/rooms"
+        for i in range(5):
+            room_factory.create()
+
+    def test_get_rooms(self):
+        res = self.client.get(self.url)
+        json_response = res.json()
+
+        assert res.status_code == 200
+        assert json_response["total"] == 5
+
+        expected_keys = {
+            'id',
+            'name',
+            'country',
+            'city',
+            'price',
+            'user_id',
+            'created_at',
+            'updated_at',
+        }
+        assert set(json_response['records'][0].keys()) == expected_keys
+
+
+# GET /api/v1/rooms/1
+class TestGetRoom:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.url = f"/api/v1/rooms/{self.room.id}"
+
+    def test_record_not_found(self):
+        res = self.client.get("/api/v1/rooms/-1")
+        assert res.status_code == 404
+
+    def test_get_room(self):
+        res = self.client.get(self.url)
+        json_response = res.json()
+
+        assert res.status_code == 200
+        assert json_response["id"] == self.room.id
+        assert set(json_response.keys()).issubset(
+            {
+                "id",
+                "name",
+                "country",
+                "city",
+                "price",
+                "rooms",
+                "toilets",
+                "description",
+                "address",
+                "pet_friendly",
+                "kind",
+                "user_id",
+                "category_id",
+                "created_at",
+                "updated_at",
+                "user",
+                "amenities",
+                "category",
+            }
+        )
 
 
 # GET /api/v1/room/amenities
