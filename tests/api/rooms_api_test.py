@@ -1,6 +1,6 @@
 import pytest
 import re
-from rooms.models import Amenity
+from rooms.models import Room, Amenity
 
 pytestmark = pytest.mark.django_db
 
@@ -32,6 +32,80 @@ class TestGetRooms:
             'updated_at',
         }
         assert set(json_response['records'][0].keys()) == expected_keys
+
+
+# POST /api/v1/rooms
+class TestPostRoom:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, category_factory):
+        self.client = client
+        self.url = "/api/v1/rooms"
+        self.user = user_factory.create()
+        self.category = category_factory.create()
+        self.params = {
+            "name": "test rooms",
+            "country": "korea",
+            "city": "seoul",
+            "price": 100_000,
+            "rooms": 2,
+            "toilets": 1,
+            "description": None,
+            "address": "249, Dongho-ro, Jung-gu, Seoul, Republic of Korea",
+            "pet_friendly": False,
+            "kind": "private_place",
+            "category_id": self.category.id,
+        }
+
+    def test_is_authenticated(self):
+        res = self.client.post(
+            self.url,
+            self.params,
+        )
+        assert res.status_code == 401
+
+    def test_required_filed(self):
+        del self.params['name']
+
+        res = self.client.post(
+            self.url,
+            self.params,
+            self.user,
+        )
+        assert res.status_code == 400
+
+    def test_category_is_not_found(self):
+        self.params['category_id'] = -1
+
+        res = self.client.post(
+            self.url,
+            self.params,
+            self.user,
+        )
+        assert res.status_code == 404
+
+    def test_category_kind_is_not_rooms(self):
+        self.category.kind = 'experiences'
+        self.category.save()
+
+        res = self.client.post(
+            self.url,
+            self.params,
+            self.user,
+        )
+        assert res.status_code == 400
+        assert res.json().get('message') == "The Category kind should be 'rooms'"
+
+    def test_create_rooms(self):
+        before_count = Room.objects.count()
+        assert before_count == 0
+
+        res = self.client.post(
+            self.url,
+            self.params,
+            self.user,
+        )
+        assert res.status_code == 201
+        assert Room.objects.count() == 1
 
 
 # GET /api/v1/rooms/1
@@ -76,7 +150,7 @@ class TestGetRoom:
         )
 
 
-# GET /api/v1/room/amenities
+# GET /api/v1/rooms/amenities
 class TestGetAmenities:
     @pytest.fixture(autouse=True)
     def setup(self, client):

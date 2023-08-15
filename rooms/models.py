@@ -53,7 +53,6 @@ class Room(models.Model):
         amenities = Amenity.objects.filter(id__in=amenity_ids)
         self.amenities.add(*amenities)
 
-
     class Meta:
         db_table = "rooms"
 

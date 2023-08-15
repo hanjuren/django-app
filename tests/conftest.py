@@ -29,19 +29,28 @@ class ClientRequest:
     def params(self, data):
         return json.dumps(data) if data else {}
 
+    def headers(self, user=None):
+        if user:
+            token = user.generate_token()
+            return {'HTTP_Authorization': f"Bearer {token}"}
+        else:
+            return {}
+
     def get(self, url, data=None, user=None):
         res = self.client.get(
             url,
             self.params(data),
             content_type="application/json",
+            **self.headers(user),
         )
         return res
 
     def post(self, url, data=None, user=None):
         res = self.client.post(
             url,
-            self.params(data),
+            data=self.params(data),
             content_type="application/json",
+            **self.headers(user),
         )
         return res
 
@@ -50,11 +59,15 @@ class ClientRequest:
             url,
             self.params(data),
             content_type="application/json",
+            **self.headers(user),
         )
         return res
 
     def delete(self, url, data=None, user=None):
-        res = self.client.delete(url)
+        res = self.client.delete(
+            url,
+            **self.headers(user),
+        )
         return res
 
 
