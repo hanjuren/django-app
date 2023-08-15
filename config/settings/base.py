@@ -124,6 +124,10 @@ AUTH_USER_MODEL = "users.User"
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'EXCEPTION_HANDLER': 'config.utils.custom_exception_handler',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "config.authentication.JwtAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
 
 SWAGGER_SETTINGS = {

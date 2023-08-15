@@ -8,6 +8,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env.dev"))
 
 SECRET_KEY = env("SECRET_KEY")
 
+JWT_SECRET_KEY = env('JWT_SECRET_KEY')
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
