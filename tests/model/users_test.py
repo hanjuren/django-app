@@ -1,4 +1,6 @@
 import pytest
+import jwt
+from django.conf import settings
 from users.models import User
 
 
@@ -38,3 +40,12 @@ class TestUser:
 
         user2 = user_factory.create(is_admin=True)
         assert user2.is_superuser is True
+
+    def test_generate_token(self, user_factory):
+        user = user_factory.create()
+        token = jwt.decode(user.generate_token(), settings.JWT_SECRET_KEY, algorithms=['HS256'])
+
+        assert token['user_id'] == user.id
+        assert token['user_email'] == user.email
+        assert token['user_name'] == user.name
+        assert token['user_is_admin'] == user.is_admin

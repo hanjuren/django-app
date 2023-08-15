@@ -1,3 +1,6 @@
+import jwt
+from django.utils import timezone
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -60,6 +63,23 @@ class User(AbstractBaseUser, PermissionsMixin):
     # methods
     def __str__(self) -> str:
         return self.name
+
+    def generate_token(self):
+        payload = {
+            "user_id": self.id,
+            "user_email": self.email,
+            "user_name": self.name,
+            "user_is_admin": self.is_admin,
+            "iat": timezone.now(),
+            "exp": timezone.now() + timezone.timedelta(hours=2)  # 2.hours
+        }
+        token = jwt.encode(
+            payload,
+            settings.JWT_SECRET_KEY,
+            algorithm="HS256",
+        )
+
+        return token
 
     @property
     def is_superuser(self):
