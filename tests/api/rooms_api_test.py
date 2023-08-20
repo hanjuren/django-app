@@ -150,6 +150,33 @@ class TestGetRoom:
         )
 
 
+# DELETE /api/v1/rooms/1
+class TestDeleteRoom:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, room_factory):
+        self.client = client
+        self.user1 = user_factory.create()
+        self.user2 = user_factory.create()
+        self.room = room_factory.create(user=self.user1)
+        self.url = f"/api/v1/rooms/{self.room.id}"
+
+    def test_is_authenticate(self):
+        res = self.client.delete(self.url)
+        assert res.status_code == 401
+
+    def test_permission_denied(self):
+        res = self.client.delete(self.url, None, self.user2)
+        assert res.status_code == 403
+
+    def test_delete_room(self):
+        previous_count = Room.objects.count()
+        assert previous_count == 1
+
+        res = self.client.delete(self.url, None, self.user1)
+        assert res.status_code == 204
+        assert Room.objects.count() == previous_count - 1
+
+
 # GET /api/v1/rooms/amenities
 class TestGetAmenities:
     @pytest.fixture(autouse=True)

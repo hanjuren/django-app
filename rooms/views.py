@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
 from rooms.models import Room, Amenity
@@ -12,6 +13,7 @@ from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSeri
 class Rooms(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    # GET /api/v1/rooms
     @swagger_auto_schema(responses={200: RoomListResponseSerializer()})
     def get(self, request):
         rooms = Room.objects.all()
@@ -22,6 +24,7 @@ class Rooms(APIView):
             }
         )
 
+    # POST /api/v1/rooms
     @swagger_auto_schema(
         request_body=RoomCreationSerializer,
         responses={200: RoomResponseSerializer()},
@@ -40,10 +43,27 @@ class Rooms(APIView):
 
 
 class RoomDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    # GET /api/v1/rooms/1
     @swagger_auto_schema(responses={200: RoomResponseSerializer()})
     def get(self, request, id_):
         room = Room.objects.get(id=id_)
         return Response(RoomResponseSerializer(room).data)
+
+    # PUT /api/v1/rooms/1
+    @swagger_auto_schema(responses={200: RoomResponseSerializer()})
+    def put(self, request, id_):
+        pass
+
+    # DELETE /api/v1/rooms/1
+    def delete(self, request, id_):
+        room = Room.objects.get(id=id_)
+        if room.user != request.user:
+            raise PermissionDenied
+
+        room.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 class Amenities(APIView):
