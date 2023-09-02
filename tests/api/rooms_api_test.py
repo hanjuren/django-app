@@ -222,6 +222,26 @@ class TestDeleteRoom:
         assert Room.objects.count() == previous_count - 1
 
 
+# GET /api/v1/rooms/1/reviews
+class TestGetRoomReviews:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory, review_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.url = f"/api/v1/rooms/{self.room.id}/reviews"
+
+        for i in range(2):
+            review_factory(room=self.room)
+
+    def test_get_room_reviews(self):
+        res = self.client.get(self.url)
+        json_response = res.json()
+
+        assert res.status_code == 200
+        assert json_response["total"] == 2
+        assert len(json_response["records"]) == 2
+
+
 # GET /api/v1/rooms/amenities
 class TestGetAmenities:
     @pytest.fixture(autouse=True)

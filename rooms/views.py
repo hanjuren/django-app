@@ -4,11 +4,13 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_42
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
+from config.pagination import Pagination
 from rooms.models import Room, Amenity
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
     AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
     RoomCreationSerializer, RoomUpdateSerializer
 
+from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer
 
 class Rooms(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -83,6 +85,28 @@ class RoomDetail(APIView):
 
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class RoomReviews(APIView, Pagination):
+    @swagger_auto_schema(responses={200: ReviewListResponseSerializer()})
+    def get(self, request, id_):
+        room = Room.objects.get(id=id_)
+        query = room.reviews.all()
+
+        total = query.count()
+        offset = self.offset(request)
+        limit = self.limit(request) + offset
+        records = query.order_by('created_at')[offset:limit]
+
+        return Response(
+            {
+                "total": total,
+                "records": ReviewsResponseSerializer(
+                    records,
+                    many=True,
+                ).data,
+            }
+        )
 
 
 class Amenities(APIView):

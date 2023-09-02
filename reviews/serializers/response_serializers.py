@@ -15,3 +15,8 @@ class ReviewsResponseSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+
+class ReviewListResponseSerializer(serializers.Serializer):
+    total = serializers.IntegerField()
+    records = ReviewsResponseSerializer(many=True)
