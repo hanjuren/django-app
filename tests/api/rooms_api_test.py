@@ -150,6 +150,47 @@ class TestGetRoom:
         )
 
 
+# PUT /api/v1/rooms/1
+class TestPutRoom:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory, user_factory, category_factory):
+        self.client = client
+        self.user1 = user_factory.create()
+        self.user2 = user_factory.create()
+        self.room = room_factory.create(user=self.user1)
+        self.url = f"/api/v1/rooms/{self.room.id}"
+        self.category = category_factory.create()
+
+    def test_is_authenticate(self):
+        res = self.client.put(self.url)
+        assert res.status_code == 401
+
+    def test_permission_denied(self):
+        res = self.client.put(self.url, None, self.user2)
+        assert res.status_code == 401
+
+    def test_put_room(self):
+        res = self.client.put(
+            self.url,
+            {
+                "name": "test rooms",
+                "country": "korea",
+                "city": "seoul",
+                "price": 100_000,
+                "rooms": 2,
+                "toilets": 1,
+                "description": None,
+                "address": "249, Dongho-ro, Jung-gu, Seoul, Republic of Korea",
+                "pet_friendly": False,
+                "kind": "private_place",
+                "category_id": self.category.id,
+            },
+            self.user1,
+        )
+
+        assert res.status_code == 200
+
+
 # DELETE /api/v1/rooms/1
 class TestDeleteRoom:
     @pytest.fixture(autouse=True)

@@ -7,7 +7,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rooms.models import Room, Amenity
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
     AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
-    RoomCreationSerializer
+    RoomCreationSerializer, RoomUpdateSerializer
 
 
 class Rooms(APIView):
@@ -54,7 +54,17 @@ class RoomDetail(APIView):
     # PUT /api/v1/rooms/1
     @swagger_auto_schema(responses={200: RoomResponseSerializer()})
     def put(self, request, id_):
-        pass
+        room = Room.objects.get(id=id_)
+        if room.user != request.user:
+            raise PermissionDenied
+
+        serializer = RoomUpdateSerializer(room, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        room = serializer.save()
+        room.add_amenities(request.data.get("amenity_ids", []))
+
+        return Response(RoomResponseSerializer(room).data)
 
     # DELETE /api/v1/rooms/1
     def delete(self, request, id_):

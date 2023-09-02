@@ -1,5 +1,5 @@
 import json
-
+from django.conf import settings
 import pytest
 from rest_framework.test import APIClient
 from pytest_factoryboy import register
@@ -20,6 +20,11 @@ factories = [
 
 for factory in factories:
     register(factory)
+
+
+@pytest.fixture(autouse=True)
+def override_debug_option():
+    settings.DEBUG = True
 
 
 class ClientRequest:
