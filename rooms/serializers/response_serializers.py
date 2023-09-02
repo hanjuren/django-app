@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rooms.models import Room, Amenity
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategoryResponseSerializer
+from reviews.serializers import ReviewsResponseSerializer
 
 
 class AmenityResponseSerializer(serializers.ModelSerializer):
@@ -48,6 +49,7 @@ class RoomResponseSerializer(serializers.ModelSerializer):
     category = CategoryResponseSerializer()
     rating = serializers.SerializerMethodField()  # N+1 query
     is_owner = serializers.SerializerMethodField()
+    reviews = ReviewsResponseSerializer(many=True)  # TODO 리뷰 조회 API 생성 후 제거
 
     class Meta:
         model = Room
@@ -72,6 +74,7 @@ class RoomResponseSerializer(serializers.ModelSerializer):
             "category",
             "rating",
             "is_owner",
+            "reviews",
         )
 
     def get_rating(self, room):
