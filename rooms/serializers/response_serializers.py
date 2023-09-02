@@ -16,6 +16,9 @@ class AmenityListResponseSerializer(serializers.Serializer):
 
 
 class RoomsResponseSerializer(serializers.ModelSerializer):
+    rating = serializers.SerializerMethodField()  # N+1 query
+    is_owner = serializers.SerializerMethodField()
+
     class Meta:
         model = Room
         fields = (
@@ -27,13 +30,24 @@ class RoomsResponseSerializer(serializers.ModelSerializer):
             "user_id",
             "created_at",
             "updated_at",
+            "rating",
+            "is_owner",
         )
+
+    def get_rating(self, room):
+        return room.reviews_rating()
+
+    def get_is_owner(self, room):
+        request = self.context.get("request", {})
+        return request.user.id == room.user_id
 
 
 class RoomResponseSerializer(serializers.ModelSerializer):
     user = TinyUserSerializer()
     amenities = AmenityResponseSerializer(many=True)
     category = CategoryResponseSerializer()
+    rating = serializers.SerializerMethodField()  # N+1 query
+    is_owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
@@ -56,7 +70,16 @@ class RoomResponseSerializer(serializers.ModelSerializer):
             "user",
             "amenities",
             "category",
+            "rating",
+            "is_owner",
         )
+
+    def get_rating(self, room):
+        return room.reviews_rating()
+
+    def get_is_owner(self, room):
+        request = self.context.get("request", {})
+        return request.user.id == room.user_id
 
 
 class RoomListResponseSerializer(serializers.Serializer):

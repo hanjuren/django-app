@@ -20,7 +20,11 @@ class Rooms(APIView):
         return Response(
             {
                 "total": rooms.count(),
-                "records": RoomsResponseSerializer(rooms, many=True).data,
+                "records": RoomsResponseSerializer(
+                    rooms,
+                    many=True,
+                    context={"request": request},
+                ).data,
             }
         )
 
@@ -37,7 +41,10 @@ class Rooms(APIView):
         room.add_amenities(request.data.get("amenity_ids", []))
 
         return Response(
-            RoomResponseSerializer(room).data,
+            RoomResponseSerializer(
+                room,
+                context={"request": request},
+            ).data,
             status=HTTP_201_CREATED,
         )
 
@@ -49,7 +56,8 @@ class RoomDetail(APIView):
     @swagger_auto_schema(responses={200: RoomResponseSerializer()})
     def get(self, request, id_):
         room = Room.objects.get(id=id_)
-        return Response(RoomResponseSerializer(room).data)
+        serializer = RoomResponseSerializer(room, context={"request": request})
+        return Response(serializer.data)
 
     # PUT /api/v1/rooms/1
     @swagger_auto_schema(responses={200: RoomResponseSerializer()})
@@ -58,13 +66,14 @@ class RoomDetail(APIView):
         if room.user != request.user:
             raise PermissionDenied
 
-        serializer = RoomUpdateSerializer(room, data=request.data)
-        serializer.is_valid(raise_exception=True)
+        update_serializer = RoomUpdateSerializer(room, data=request.data)
+        update_serializer.is_valid(raise_exception=True)
 
-        room = serializer.save()
+        room = update_serializer.save()
         room.add_amenities(request.data.get("amenity_ids", []))
 
-        return Response(RoomResponseSerializer(room).data)
+        serializer = RoomResponseSerializer(room, context={"request": request})
+        return Response(serializer.data)
 
     # DELETE /api/v1/rooms/1
     def delete(self, request, id_):
