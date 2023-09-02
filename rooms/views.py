@@ -12,18 +12,26 @@ from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSeri
 
 from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer
 
-class Rooms(APIView):
+
+class Rooms(APIView, Pagination):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     # GET /api/v1/rooms
     @swagger_auto_schema(responses={200: RoomListResponseSerializer()})
     def get(self, request):
-        rooms = Room.objects.all()
+        query = Room.objects.all()
+
+        total = query.count()
+
+        offset = self.offset(request)
+        limit = self.limit(request) + offset
+        records = query.order_by('created_at')[offset:limit]
+
         return Response(
             {
-                "total": rooms.count(),
+                "total": total,
                 "records": RoomsResponseSerializer(
-                    rooms,
+                    records,
                     many=True,
                     context={"request": request},
                 ).data,
@@ -109,15 +117,20 @@ class RoomReviews(APIView, Pagination):
         )
 
 
-class Amenities(APIView):
+class Amenities(APIView, Pagination):
     @swagger_auto_schema(responses={200: AmenityListResponseSerializer()})
     def get(self, request):
-        amenities = Amenity.objects.all()
+        query = Amenity.objects.all()
+
+        total = query.count()
+        offset = self.offset(request)
+        limit = self.limit(request) + offset
+        records = query.order_by('created_at')[offset:limit]
 
         return Response(
             {
-                "total": amenities.count(),
-                "records": AmenityResponseSerializer(amenities, many=True).data,
+                "total": total,
+                "records": AmenityResponseSerializer(records, many=True).data,
             }
         )
 
