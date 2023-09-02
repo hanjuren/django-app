@@ -1,1 +1,1 @@
-from reviews.serializers.response_serializers import ReviewsResponseSerializer
+from reviews.serializers.response_serializers import ReviewsResponseSerializer, ReviewListResponseSerializer
