@@ -30,6 +30,8 @@ class TestGetRooms:
             'user_id',
             'created_at',
             'updated_at',
+            "rating",
+            "is_owner",
         }
         assert set(json_response['records'][0].keys()) == expected_keys
 
@@ -146,6 +148,8 @@ class TestGetRoom:
                 "user",
                 "amenities",
                 "category",
+                "rating",
+                "is_owner",
             }
         )
 
@@ -167,7 +171,7 @@ class TestPutRoom:
 
     def test_permission_denied(self):
         res = self.client.put(self.url, None, self.user2)
-        assert res.status_code == 401
+        assert res.status_code == 403
 
     def test_put_room(self):
         res = self.client.put(
