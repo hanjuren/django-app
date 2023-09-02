@@ -47,3 +47,12 @@ class RoomCreationSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Room.objects.create(**validated_data)
+
+
+class RoomUpdateSerializer(RoomCreationSerializer):
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
