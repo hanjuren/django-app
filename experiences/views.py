@@ -3,20 +3,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
 from drf_yasg.utils import swagger_auto_schema
+from config.pagination import Pagination
 from experiences.models import Perk
 from experiences.serializers import PerkResponseSerializer, PerkListSerializer, \
     PerkCreationSerializer, PerkUpdateSerializer
 
 
-class Perks(APIView):
+class Perks(APIView, Pagination):
     @swagger_auto_schema(responses={200: PerkListSerializer()})
     def get(self, request):
-        perks = Perk.objects.all()
+        query = Perk.objects.all()
+
+        total = query.count()
+        offset = self.offset(request)
+        limit = self.limit(request) + offset
+        records = query.order_by('created_at')[offset:limit]
 
         return Response(
             {
-                "total": perks.count(),
-                "records": PerkResponseSerializer(perks, many=True).data,
+                "total": total,
+                "records": PerkResponseSerializer(records, many=True).data,
             }
         )
 
