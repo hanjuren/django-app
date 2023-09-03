@@ -5,12 +5,14 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
 from config.pagination import Pagination
+
 from rooms.models import Room, Amenity
+
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
     AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
     RoomCreationSerializer, RoomUpdateSerializer
-
 from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer
+from medias.serializers import PhotoCreationSerializer, PhotoResponseSerializer
 
 
 class Rooms(APIView, Pagination):
@@ -115,6 +117,18 @@ class RoomReviews(APIView, Pagination):
                 ).data,
             }
         )
+
+
+class RoomPhotos(APIView):
+    def post(self, request, id_):
+        room = Room.objects.get(id=id_)
+
+        serializer = PhotoCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        photo = serializer.save(room=room)
+
+        return Response(PhotoResponseSerializer(photo).data, status=HTTP_201_CREATED)
 
 
 class Amenities(APIView, Pagination):

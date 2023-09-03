@@ -50,11 +50,16 @@ class ClientRequest:
         )
         return res
 
-    def post(self, url, data=None, user=None):
+    def post(self, url, data=None, user=None, content_type="application/json"):
+        if content_type == "application/json":
+            params = self.params(data)
+        else:
+            params = data
+
         res = self.client.post(
             url,
-            data=self.params(data),
-            content_type="application/json",
+            params,
+            content_type=content_type,
             **self.headers(user),
         )
         return res
