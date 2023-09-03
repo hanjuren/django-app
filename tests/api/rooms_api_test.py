@@ -1,5 +1,6 @@
 import pytest
 import re
+from django.test import client
 from rooms.models import Room, Amenity
 
 pytestmark = pytest.mark.django_db
@@ -240,6 +241,29 @@ class TestGetRoomReviews:
         assert res.status_code == 200
         assert json_response["total"] == 2
         assert len(json_response["records"]) == 2
+
+
+class TestPostRoomPhotos:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.url = f"/api/v1/rooms/{self.room.id}/photos"
+
+    def test_post_photos(self):
+        res = self.client.post(
+            self.url,
+            client.encode_multipart(
+                client.BOUNDARY,
+                {
+                    "description": "test",
+                    'file': open('ror.png','rb'),
+                }
+            ),
+            content_type=client.MULTIPART_CONTENT,
+        )
+
+        assert res.status_code == 201
 
 
 # GET /api/v1/rooms/amenities
