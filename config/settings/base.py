@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8pvm=kh^&v7x2e$t5u!tf1dgf2yx67ij_px9dk@l$hsefm1m6='
 
-THIRD_PARTY_APPS = ['rest_framework', 'drf_yasg']
+THIRD_PARTY_APPS = ['rest_framework', 'drf_yasg', 'storages']
 
 CUSTOM_APPS = [
     'users.apps.UsersConfig',
@@ -136,3 +136,7 @@ SWAGGER_SETTINGS = {
 }
 
 APPEND_SLASH = False
+
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_S3_SECURE_URLS = True
+# AWS_QUERYSTRING_AUTH = False
