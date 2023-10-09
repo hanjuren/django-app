@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from config.pagination import Pagination
@@ -13,7 +14,7 @@ class Wishlists(APIView, Pagination):
 
     @swagger_auto_schema(
         responses={200: WishlistListResponseSerializer()},
-        tags=["wishlists"]
+        tags=["wishlists"],
     )
     def get(self, request):
         query = Wishlist.objects.filter(user=request.user)
@@ -43,5 +44,16 @@ class Wishlists(APIView, Pagination):
             }
         )
 
+    @swagger_auto_schema(
+        request_body=WishlistCreationSerializer,
+        responses={201: WishlistsResponseSerializer()},
+        tags=["wishlists"],
+    )
     def post(self, request):
-        pass
+        serializer = WishlistCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        wishlist = serializer.save(user=request.user)
+
+        # wishlist 생성시 rooms, experiences 가 없기 때문에 N+1 쿼리 발생 문제는 없음.
+        return Response(WishlistsResponseSerializer(wishlist).data, status=HTTP_201_CREATED)
