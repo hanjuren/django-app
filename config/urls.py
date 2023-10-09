@@ -21,16 +21,16 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Django API",
-      default_version='v1',
-      description="Django API Server",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="juren528@gmail.com"),
-      license=openapi.License(name="MIT"),
-   ),
-   public=True,
-   permission_classes=[permissions.AllowAny],
+    openapi.Info(
+        title="Django API",
+        default_version='v1',
+        description="Django API Server",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="juren528@gmail.com"),
+        license=openapi.License(name="MIT"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
 )
 
 urls = [
@@ -38,6 +38,7 @@ urls = [
     path("/categories", include("categories.urls")),
     path("/experiences", include("experiences.urls")),
     path("/medias", include("medias.urls")),
+    path("/wishlists", include("wishlists.urls"))
 ]
 
 urlpatterns = [
