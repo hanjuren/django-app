@@ -56,4 +56,10 @@ class Wishlists(APIView, Pagination):
         wishlist = serializer.save(user=request.user)
 
         # wishlist 생성시 rooms, experiences 가 없기 때문에 N+1 쿼리 발생 문제는 없음.
-        return Response(WishlistsResponseSerializer(wishlist).data, status=HTTP_201_CREATED)
+        return Response(
+            WishlistsResponseSerializer(
+                wishlist,
+                context={"request": request},
+            ).data,
+            status=HTTP_201_CREATED
+        )
