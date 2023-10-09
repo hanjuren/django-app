@@ -10,6 +10,7 @@ from categories.models import Category
 from reviews.models import Review
 from wishlists.models import Wishlist
 from direct_messages.models import ChattingRoom, Message
+from medias.models import Photo
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -121,3 +122,12 @@ class MessageFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Message
+
+
+class PhotoFactory(factory.django.DjangoModelFactory):
+    file = "https://example.com"
+    description = "test photo factory"
+    room = factory.SubFactory(RoomFactory)
+
+    class Meta:
+        model = Photo
