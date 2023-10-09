@@ -1,7 +1,10 @@
 import pytest
 import re
+import os
+from django.conf import settings
 from django.test import client
 from rooms.models import Room, Amenity
+from medias.models import Photo
 
 pytestmark = pytest.mark.django_db
 
@@ -250,14 +253,20 @@ class TestPostRoomPhotos:
         self.room = room_factory.create()
         self.url = f"/api/v1/rooms/{self.room.id}/photos"
 
+    def teardown_method(self):
+        for photo in Photo.objects.all():
+            Photo.delete_image(photo.file.replace(f"{settings.IMAGE_URL}/", ""))
+
     def test_post_photos(self):
+        file_path = os.path.join(settings.BASE_DIR, 'tests', 'fixtures', 'ror.png')
+
         res = self.client.post(
             self.url,
             client.encode_multipart(
                 client.BOUNDARY,
                 {
                     "description": "test",
-                    'file': open('ror.png','rb'),
+                    'file': open(file_path, 'rb'),
                 }
             ),
             content_type=client.MULTIPART_CONTENT,
