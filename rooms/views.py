@@ -19,7 +19,10 @@ class Rooms(APIView, Pagination):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     # GET /api/v1/rooms
-    @swagger_auto_schema(responses={200: RoomListResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: RoomListResponseSerializer()},
+        tags=["rooms"]
+    )
     def get(self, request):
         query = Room.objects.all()
 
@@ -46,6 +49,7 @@ class Rooms(APIView, Pagination):
     @swagger_auto_schema(
         request_body=RoomCreationSerializer,
         responses={200: RoomResponseSerializer()},
+        tags=["rooms"]
     )
     def post(self, request):
         serializer = RoomCreationSerializer(data=request.data)
@@ -67,14 +71,20 @@ class RoomDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     # GET /api/v1/rooms/1
-    @swagger_auto_schema(responses={200: RoomResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: RoomResponseSerializer()},
+        tags=["rooms"]
+    )
     def get(self, request, id_):
         room = Room.objects.get(id=id_)
         serializer = RoomResponseSerializer(room, context={"request": request})
         return Response(serializer.data)
 
     # PUT /api/v1/rooms/1
-    @swagger_auto_schema(responses={200: RoomResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: RoomResponseSerializer()},
+        tags=["rooms"]
+    )
     def put(self, request, id_):
         room = Room.objects.get(id=id_)
         if room.user != request.user:
@@ -90,6 +100,7 @@ class RoomDetail(APIView):
         return Response(serializer.data)
 
     # DELETE /api/v1/rooms/1
+    @swagger_auto_schema(tags=["rooms"])
     def delete(self, request, id_):
         room = Room.objects.get(id=id_)
         if room.user != request.user:
@@ -144,6 +155,11 @@ class RoomReviews(APIView, Pagination):
 
 
 class RoomPhotos(APIView):
+    @swagger_auto_schema(
+        request_body=PhotoCreationSerializer,
+        responses={201: PhotoResponseSerializer()},
+        tags=["rooms/:id/photos"]
+    )
     def post(self, request, id_):
         room = Room.objects.get(id=id_)
 
@@ -156,7 +172,10 @@ class RoomPhotos(APIView):
 
 
 class Amenities(APIView, Pagination):
-    @swagger_auto_schema(responses={200: AmenityListResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: AmenityListResponseSerializer()},
+        tags=["rooms/amenities"]
+    )
     def get(self, request):
         query = Amenity.objects.all()
 
@@ -174,7 +193,8 @@ class Amenities(APIView, Pagination):
 
     @swagger_auto_schema(
         request_body=AmenityCreationSerializer,
-        responses={201: AmenityResponseSerializer()}
+        responses={201: AmenityResponseSerializer()},
+        tags=["rooms/amenities"]
     )
     def post(self, request):
         serializer = AmenityCreationSerializer(data=request.data)
@@ -194,14 +214,18 @@ class Amenities(APIView, Pagination):
 
 
 class AmenityDetail(APIView):
-    @swagger_auto_schema(responses={200: AmenityResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: AmenityResponseSerializer()},
+        tags=["rooms/amenities"]
+    )
     def get(self, request, id_):
         amenity = Amenity.objects.get(id=id_)
         return Response(AmenityResponseSerializer(amenity).data)
 
     @swagger_auto_schema(
         request_body=AmenityUpdateSerializer,
-        responses={200: AmenityResponseSerializer()}
+        responses={200: AmenityResponseSerializer()},
+        tags=["rooms/amenities"]
     )
     def put(self, request, id_):
         amenity = Amenity.objects.get(id=id_)
@@ -219,6 +243,7 @@ class AmenityDetail(APIView):
             serializer.save()
             return Response(AmenityResponseSerializer(amenity).data)
 
+    @swagger_auto_schema(tags=["rooms/amenities"])
     def delete(self, request, id_):
         amenity = Amenity.objects.get(id=id_)
         amenity.delete()
