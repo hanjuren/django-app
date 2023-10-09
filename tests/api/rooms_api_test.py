@@ -36,6 +36,7 @@ class TestGetRooms:
             'updated_at',
             "rating",
             "is_owner",
+            "photos",
         }
         assert set(json_response['records'][0].keys()) == expected_keys
 
@@ -154,6 +155,7 @@ class TestGetRoom:
                 "category",
                 "rating",
                 "is_owner",
+                "photos",
             }
         )
 
