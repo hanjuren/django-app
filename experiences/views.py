@@ -10,7 +10,10 @@ from experiences.serializers import PerkResponseSerializer, PerkListSerializer, 
 
 
 class Perks(APIView, Pagination):
-    @swagger_auto_schema(responses={200: PerkListSerializer()})
+    @swagger_auto_schema(
+        responses={200: PerkListSerializer()},
+        tags=["experiences/perks"]
+    )
     def get(self, request):
         query = Perk.objects.all()
 
@@ -28,7 +31,8 @@ class Perks(APIView, Pagination):
 
     @swagger_auto_schema(
         request_body=PerkCreationSerializer,
-        responses={201: PerkResponseSerializer()}
+        responses={201: PerkResponseSerializer()},
+        tags=["experiences/perks"]
     )
     def post(self, request):
         serializer = PerkCreationSerializer(data=request.data)
@@ -48,7 +52,10 @@ class Perks(APIView, Pagination):
 
 
 class PerkDetail(APIView):
-    @swagger_auto_schema(responses={200: PerkResponseSerializer()})
+    @swagger_auto_schema(
+        responses={200: PerkResponseSerializer()},
+        tags=["experiences/perks"]
+    )
     def get(self, request, id_):
         perk = Perk.objects.get(id=id_)
         return Response(PerkResponseSerializer(perk).data)
@@ -56,6 +63,7 @@ class PerkDetail(APIView):
     @swagger_auto_schema(
         request_body=PerkUpdateSerializer,
         responses={200: PerkResponseSerializer()},
+        tags=["experiences/perks"]
     )
     def put(self, request, id_):
         perk = Perk.objects.get(id=id_)
@@ -70,6 +78,7 @@ class PerkDetail(APIView):
             serializer.save()
             return Response(PerkResponseSerializer(perk).data)
 
+    @swagger_auto_schema(tags=["experiences/perks"])
     def delete(self, request, id_):
         perk = Perk.objects.get(id=id_)
         perk.delete()
