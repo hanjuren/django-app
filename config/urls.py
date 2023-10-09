@@ -37,6 +37,7 @@ urls = [
     path("/rooms", include("rooms.urls")),
     path("/categories", include("categories.urls")),
     path("/experiences", include("experiences.urls")),
+    path("/medias", include("medias.urls")),
 ]
 
 urlpatterns = [
