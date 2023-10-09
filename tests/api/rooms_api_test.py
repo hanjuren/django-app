@@ -156,6 +156,7 @@ class TestGetRoom:
                 "rating",
                 "is_owner",
                 "photos",
+                "is_liked",
             }
         )
 
