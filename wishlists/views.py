@@ -7,6 +7,7 @@ from config.pagination import Pagination
 
 from wishlists.serializers import *
 from wishlists.models import *
+from rooms.models import Room
 
 
 class Wishlists(APIView, Pagination):
@@ -122,3 +123,37 @@ class WishlistDetail(APIView):
         wishlist = Wishlist.objects.get(id=id_, user=request.user)
         wishlist.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class WishlistRooms(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        responses={200: WishlistsResponseSerializer()},
+        tags=["wishlists/:id/rooms/:room_id"],
+    )
+    def put(self, request, id_, room_id):
+        wishlist = Wishlist.objects.get(id=id_, user=request.user)
+        room = Room.objects.get(id=room_id)
+
+        if wishlist.rooms.filter(id=room.id).exists():
+            wishlist.rooms.remove(room)
+        else:
+            wishlist.rooms.add(room)
+
+        wishlist = Wishlist \
+                        .objects \
+                        .prefetch_related(
+                            "rooms",
+                            "rooms__user",
+                            "rooms__reviews",
+                            "rooms__photos",
+                        ) \
+                        .get(id=wishlist.id)
+
+        return Response(
+            WishlistsResponseSerializer(
+                wishlist,
+                context={"request": request},
+            ).data
+        )
