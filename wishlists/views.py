@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from config.pagination import Pagination
@@ -63,3 +63,62 @@ class Wishlists(APIView, Pagination):
             ).data,
             status=HTTP_201_CREATED
         )
+
+
+class WishlistDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        responses={200: WishlistsResponseSerializer()},
+        tags=["wishlists"],
+    )
+    def get(self, request, id_):
+        wishlist = Wishlist \
+                        .objects \
+                        .prefetch_related(
+                            "rooms",
+                            "rooms__user",
+                            "rooms__reviews",
+                            "rooms__photos",
+                        ) \
+                        .get(id=id_, user=request.user)
+
+        return Response(
+            WishlistsResponseSerializer(
+                wishlist,
+                context={"request": request},
+            ).data
+        )
+
+    @swagger_auto_schema(
+        request_body=WishlistUpdateSerializer,
+        responses={200: WishlistsResponseSerializer()},
+        tags=["wishlists"],
+    )
+    def put(self, request, id_):
+        wishlist = Wishlist \
+                        .objects \
+                        .prefetch_related(
+                            "rooms",
+                            "rooms__user",
+                            "rooms__reviews",
+                            "rooms__photos",
+                        ) \
+                        .get(id=id_, user=request.user)
+
+        serializer = WishlistUpdateSerializer(wishlist, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        wishlist = serializer.save()
+
+        return Response(
+            WishlistsResponseSerializer(
+                wishlist,
+                context={"request": request},
+            ).data
+        )
+
+    @swagger_auto_schema(tags=["wishlists"])
+    def delete(self, request, id_):
+        wishlist = Wishlist.objects.get(id=id_, user=request.user)
+        wishlist.delete()
+        return Response(status=HTTP_204_NO_CONTENT)

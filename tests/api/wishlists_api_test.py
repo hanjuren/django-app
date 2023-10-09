@@ -1,4 +1,5 @@
 import pytest
+from wishlists.models import Wishlist
 
 pytestmark = pytest.mark.django_db
 
@@ -50,3 +51,58 @@ class TestPostWishlist:
             user=self.user
         )
         assert res.status_code == 201
+
+
+class TestGetWishlist:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, wishlist_factory):
+        self.client = client
+        self.user = user_factory.create()
+        self.wishlist = wishlist_factory.create(user=self.user)
+
+    def test_is_authenticated(self):
+        res = self.client.get(f"/api/v1/wishlists/{self.wishlist.id}")
+        assert res.status_code == 401
+
+    def test_get_wishlist(self):
+        res = self.client.get(f"/api/v1/wishlists/{self.wishlist.id}", user=self.user)
+        assert res.status_code == 200
+
+
+class TestPutWishlist:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, wishlist_factory):
+        self.client = client
+        self.user = user_factory.create()
+        self.wishlist = wishlist_factory.create(user=self.user)
+
+    def test_is_authenticated(self):
+        res = self.client.put(f"/api/v1/wishlists/{self.wishlist.id}")
+        assert res.status_code == 401
+
+    def test_update_wishlist(self):
+        res = self.client.put(
+            f"/api/v1/wishlists/{self.wishlist.id}",
+            data={"name": "wishlist update test"},
+            user=self.user
+        )
+        assert res.status_code == 200
+        assert res.json()['name'] == "wishlist update test"
+
+class TestDeleteWishlist:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, wishlist_factory):
+        self.client = client
+        self.user = user_factory.create()
+        self.wishlist = wishlist_factory.create(user=self.user)
+
+    def test_is_authenticated(self):
+        res = self.client.delete(f"/api/v1/wishlists/{self.wishlist.id}")
+        assert res.status_code == 401
+
+    def test_update_wishlist(self):
+        previous_count = Wishlist.objects.count()
+
+        res = self.client.delete(f"/api/v1/wishlists/{self.wishlist.id}", user=self.user)
+        assert res.status_code == 204
+        assert Wishlist.objects.count() == previous_count - 1
