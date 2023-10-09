@@ -11,7 +11,7 @@ from rooms.models import Room, Amenity
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
     AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
     RoomCreationSerializer, RoomUpdateSerializer
-from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer
+from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer, ReviewCreationSerializer
 from medias.serializers import PhotoCreationSerializer, PhotoResponseSerializer
 
 
@@ -100,7 +100,12 @@ class RoomDetail(APIView):
 
 
 class RoomReviews(APIView, Pagination):
-    @swagger_auto_schema(responses={200: ReviewListResponseSerializer()})
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    @swagger_auto_schema(
+        responses={200: ReviewListResponseSerializer()},
+        tags=["rooms/:id/reviews"]
+    )
     def get(self, request, id_):
         room = Room.objects.get(id=id_)
         query = room.reviews.all()
@@ -119,6 +124,23 @@ class RoomReviews(APIView, Pagination):
                 ).data,
             }
         )
+
+    @swagger_auto_schema(
+        request_body=ReviewCreationSerializer,
+        responses={200: ReviewsResponseSerializer()},
+        tags=["rooms/:id/reviews"]
+    )
+    def post(self, request, id_):
+        room = Room.objects.get(id=id_)
+
+        serializer = ReviewCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = serializer.save(
+            user=request.user,
+            room=room
+        )
+
+        return Response(ReviewsResponseSerializer(review).data, status=HTTP_201_CREATED)
 
 
 class RoomPhotos(APIView):

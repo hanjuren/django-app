@@ -246,6 +246,41 @@ class TestGetRoomReviews:
         assert len(json_response["records"]) == 2
 
 
+class TestPostRoomReviews:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory, review_factory, user_factory):
+        self.client = client
+        self.user = user_factory.create()
+        self.room = room_factory.create()
+        self.url = f"/api/v1/rooms/{self.room.id}/reviews"
+
+    def test_is_authenticated(self):
+        res = self.client.post(self.url)
+        assert res.status_code == 401
+
+    def test_validation_error(self):
+        res = self.client.post(
+            self.url,
+            data={
+                "payload": "test room review",
+                "rating": 6,
+            },
+            user=self.user
+        )
+        assert res.status_code == 400
+
+    def test_create_room_reviews(self):
+        res = self.client.post(
+            self.url,
+            data={
+                "payload": "test room review",
+                "rating": 4,
+            },
+            user=self.user
+        )
+        assert res.status_code == 201
+
+
 class TestPostRoomPhotos:
     @pytest.fixture(autouse=True)
     def setup(self, client, room_factory):
