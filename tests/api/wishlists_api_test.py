@@ -106,3 +106,29 @@ class TestDeleteWishlist:
         res = self.client.delete(f"/api/v1/wishlists/{self.wishlist.id}", user=self.user)
         assert res.status_code == 204
         assert Wishlist.objects.count() == previous_count - 1
+
+
+class TestPutWishlistRooms:
+    @pytest.fixture(autouse=True)
+    def setup(self, client, user_factory, wishlist_factory, room_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.user = user_factory.create()
+        self.wishlist = wishlist_factory.create(user=self.user)
+
+    def test_is_authenticated(self):
+        res = self.client.put(f"/api/v1/wishlists/{self.wishlist.id}/rooms/{self.room.id}")
+        assert res.status_code == 401
+
+    def test_add_wishlist_rooms(self):
+        res = self.client.put(f"/api/v1/wishlists/{self.wishlist.id}/rooms/{self.room.id}", user=self.user)
+        assert res.status_code == 200
+        assert self.wishlist.rooms.filter(id=self.room.id).exists() is True
+
+    def test_remove_wishlist_rooms(self):
+        self.client.put(f"/api/v1/wishlists/{self.wishlist.id}/rooms/{self.room.id}", user=self.user)
+        assert self.wishlist.rooms.filter(id=self.room.id).exists() is True
+
+        res = self.client.put(f"/api/v1/wishlists/{self.wishlist.id}/rooms/{self.room.id}", user=self.user)
+        assert res.status_code == 200
+        assert self.wishlist.rooms.filter(id=self.room.id).exists() is False
