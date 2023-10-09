@@ -3,6 +3,7 @@ from rooms.models import Room, Amenity
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategoryResponseSerializer
 from reviews.serializers import ReviewsResponseSerializer
+from medias.serializers import PhotoResponseSerializer
 
 
 class AmenityResponseSerializer(serializers.ModelSerializer):
@@ -17,8 +18,9 @@ class AmenityListResponseSerializer(serializers.Serializer):
 
 
 class RoomsResponseSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField()  # N+1 query
+    rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
+    photos = PhotoResponseSerializer(many=True)
 
     class Meta:
         model = Room
@@ -33,6 +35,7 @@ class RoomsResponseSerializer(serializers.ModelSerializer):
             "updated_at",
             "rating",
             "is_owner",
+            "photos",
         )
 
     def get_rating(self, room):
@@ -47,8 +50,9 @@ class RoomResponseSerializer(serializers.ModelSerializer):
     user = TinyUserSerializer()
     amenities = AmenityResponseSerializer(many=True)
     category = CategoryResponseSerializer()
-    rating = serializers.SerializerMethodField()  # N+1 query
+    rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
+    photos = PhotoResponseSerializer(many=True)
 
     class Meta:
         model = Room
@@ -73,6 +77,7 @@ class RoomResponseSerializer(serializers.ModelSerializer):
             "category",
             "rating",
             "is_owner",
+            "photos",
         )
 
     def get_rating(self, room):

@@ -46,8 +46,11 @@ class Room(models.Model):
         return self.amenities.count()
 
     def reviews_rating(self) -> int:
-        rating = self.reviews.aggregate(rating=Avg("rating"))['rating'] or 0
-        return round(rating, 2)
+        try:
+            reviews = self.reviews.all()
+            return round(sum([r.rating for r in reviews]) / len(reviews), 2)
+        except ZeroDivisionError:
+            return 0
 
     def add_amenities(self, amenity_ids):
         amenities = Amenity.objects.filter(id__in=amenity_ids)

@@ -27,7 +27,9 @@ class Rooms(APIView, Pagination):
 
         offset = self.offset(request)
         limit = self.limit(request) + offset
-        records = query.order_by('created_at')[offset:limit]
+        records = query \
+                    .prefetch_related("user", "photos", "reviews") \
+                    .order_by('created_at')[offset:limit]
 
         return Response(
             {
