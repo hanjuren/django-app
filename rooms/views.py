@@ -1,18 +1,20 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_422_UNPROCESSABLE_ENTITY
+from rest_framework.views import APIView
+
+from bookings.serializers import PublicBookingsResponseSerializer, PublicBookingListResponseSerializer, \
+    RoomBookingCreationSerializer, PublicRoomBookingResponseSerializer
 from config.pagination import Pagination
-
+from medias.serializers import PhotoCreationSerializer, PhotoResponseSerializer
+from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer, ReviewCreationSerializer
 from rooms.models import Room, Amenity
-
 from rooms.serializers import AmenityResponseSerializer, AmenityListResponseSerializer, AmenityCreationSerializer, \
     AmenityUpdateSerializer, RoomsResponseSerializer, RoomListResponseSerializer, RoomResponseSerializer, \
     RoomCreationSerializer, RoomUpdateSerializer
-from reviews.serializers import ReviewsResponseSerializer, ReviewListResponseSerializer, ReviewCreationSerializer
-from medias.serializers import PhotoCreationSerializer, PhotoResponseSerializer
 
 
 class Rooms(APIView, Pagination):
@@ -169,6 +171,56 @@ class RoomPhotos(APIView):
         photo = serializer.save(room=room)
 
         return Response(PhotoResponseSerializer(photo).data, status=HTTP_201_CREATED)
+
+
+class RoomBookings(APIView, Pagination):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    # GET /api/v1/rooms/1/bookings
+    @swagger_auto_schema(
+        responses={200: PublicBookingListResponseSerializer()},
+        tags=["rooms/:id/bookings"]
+    )
+    def get(self, request, id_):
+        room = Room.objects.get(id=id_)
+        query = room \
+                    .bookings \
+                    .filter(check_in_at__gte=timezone.localtime())
+
+        total = query.count()
+
+        offset = self.offset(request)
+        limit = self.limit(request) + offset
+        records = query.order_by('-created_at')[offset:limit]
+
+        return Response(
+            {
+                "total": total,
+                "records": PublicBookingsResponseSerializer(
+                    records,
+                    many=True,
+                ).data,
+            }
+        )
+
+    def post(self, request, id_):
+        room = Room.objects.get(id=id_)
+
+        serializer = RoomBookingCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        booking = serializer.save(
+            room=room,
+            user=request.user,
+        )
+
+        return Response(
+            PublicRoomBookingResponseSerializer(
+                booking,
+                context={"request": request}
+            ).data,
+            status=HTTP_201_CREATED,
+        )
 
 
 class Amenities(APIView, Pagination):
