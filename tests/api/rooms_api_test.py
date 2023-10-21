@@ -249,6 +249,7 @@ class TestGetRoomReviews:
         assert len(json_response["records"]) == 2
 
 
+# POST /api/v1/rooms/1/reviews
 class TestPostRoomReviews:
     @pytest.fixture(autouse=True)
     def setup(self, client, room_factory, review_factory, user_factory):
@@ -284,6 +285,7 @@ class TestPostRoomReviews:
         assert res.status_code == 201
 
 
+# POST /api/v1/rooms/1/photos
 class TestPostRoomPhotos:
     @pytest.fixture(autouse=True)
     def setup(self, client, room_factory):
@@ -311,6 +313,16 @@ class TestPostRoomPhotos:
         )
 
         assert res.status_code == 201
+
+
+# GET /api/v1/rooms/1/bookings
+class TestGetRoomBookings:
+    pass
+
+
+# POST /api/v1/rooms/1/bookings
+class TestPostRoomBookings:
+    pass
 
 
 # GET /api/v1/rooms/amenities
