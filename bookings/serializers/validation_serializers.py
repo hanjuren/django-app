@@ -9,15 +9,36 @@ class RoomBookingCreationSerializer(serializers.Serializer):
     check_out_at = serializers.DateField()
     guests = serializers.IntegerField(min_value=1)
 
+    def validate_kind(self, value):
+        if value != "room":
+            raise serializers.ValidationError("kind is only room")
+        return value
+
+    def validate_check_in_at(self, value):
+        now = timezone.localdate()
+        if now > value:
+            raise serializers.ValidationError("Can't book in the past!")
+        return value
+
+    def validate_check_out_at(self, value):
+        now = timezone.localdate()
+        if now > value:
+            raise serializers.ValidationError("Can't book in the past!")
+        return value
+
     def validate(self, data):
-        check_in_at = data.get("check_in_at")
-        check_out_at = data.get("check_out_at")
+        if data["check_out_at"] <= data["check_in_at"]:
+            raise serializers.ValidationError("Check in should be smaller than check out.")
 
-        if check_in_at < timezone.localdate():
-            raise exceptions.ParseError("체크인 정보를 확인 하세요.")
-
-        if check_in_at >= check_out_at:
-            raise exceptions.ParseError("체크아웃 정보를 확인 하세요.")
+        is_exists = Booking \
+                        .objects \
+                        .filter(
+                            check_in_at__lt=data["check_out_at"],
+                            check_out_at__gt=data["check_in_at"],
+                        ) \
+                        .exists()
+        if is_exists:
+            raise serializers.ValidationError("Those (or some) of those dates are already taken.")
 
         return data
 

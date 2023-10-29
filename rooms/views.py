@@ -203,6 +203,11 @@ class RoomBookings(APIView, Pagination):
             }
         )
 
+    @swagger_auto_schema(
+        responses={200: PublicRoomBookingResponseSerializer()},
+        request_body=RoomBookingCreationSerializer,
+        tags=["rooms/:id/bookings"]
+    )
     def post(self, request, id_):
         room = Room.objects.get(id=id_)
 

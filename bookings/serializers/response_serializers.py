@@ -24,8 +24,6 @@ class PublicBookingListResponseSerializer(serializers.Serializer):
 
 
 class PublicRoomBookingResponseSerializer(serializers.ModelSerializer):
-    room = RoomResponseSerializer()
-
     class Meta:
         model = Booking
         fields = (
@@ -36,5 +34,4 @@ class PublicRoomBookingResponseSerializer(serializers.ModelSerializer):
             "guests",
             "created_at",
             "updated_at",
-            "room",
         )
