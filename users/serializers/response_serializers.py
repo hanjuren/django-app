@@ -13,3 +13,8 @@ class TinyUserSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+class PrivateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ("password",)

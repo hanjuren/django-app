@@ -1,8 +1,12 @@
+import os
 import jwt
 from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from config.s3 import PublicS3
 
 
 class CustomUserManager(BaseUserManager):
@@ -81,6 +85,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return token
 
+    def upload_avatar(self, file) -> str:
+        base_dir = "users/avatar"
+        file_name, extension = os.path.splitext(file.name)
+        path = f"{base_dir}/{self.id}/{file_name}{extension}"
+        s3 = PublicS3()
+        s3.put_object(path, file, file.content_type)
+
+        return f"{settings.IMAGE_URL}/{path}"
+
+    def delete_avatar(self) -> None:
+        object_key = self.avatar.replace(f"{settings.IMAGE_URL}/", "")
+        s3 = PublicS3()
+        s3.delete_object(object_key)
+        return
+
     @property
     def is_superuser(self):
         return self.is_admin
@@ -92,3 +111,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'  # user model 에서 사용할 고유 식별자
     REQUIRED_FIELDS = ['name']  # createsuperuser 커맨드를 실행하여 관리자를 생성할 때 입력받을 필드
+
+
+@receiver(pre_delete, sender=User)
+def pre_delete_handler(sender, instance, **kwargs):
+    if instance.avatar:
+        instance.delete_avatar()
