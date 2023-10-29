@@ -295,8 +295,7 @@ class TestPostRoomPhotos:
         self.url = f"/api/v1/rooms/{self.room.id}/photos"
 
     def teardown_method(self):
-        for photo in Photo.objects.all():
-            Photo.delete_image(photo.file.replace(f"{settings.IMAGE_URL}/", ""))
+        Photo.objects.all().delete()
 
     def test_post_photos(self):
         file_path = os.path.join(settings.BASE_DIR, 'tests', 'fixtures', 'ror.png')

@@ -17,7 +17,6 @@ class PhotoDetail(APIView):
                 photo.experience and photo.experience.user != request.user
         ):
             raise PermissionDenied
-        Photo.delete_image(photo.file.replace(f"{settings.IMAGE_URL}/", ""))
         photo.delete()
 
         return Response(status=HTTP_204_NO_CONTENT)
