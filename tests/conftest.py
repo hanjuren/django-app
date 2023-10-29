@@ -4,7 +4,6 @@ import pytest
 from rest_framework.test import APIClient
 from pytest_factoryboy import register
 from django.utils import timezone
-from datetime import timedelta
 
 from factories import \
     UserFactory, RoomFactory, AmenityFactory, ExperienceFactory, PerkFactory, CategoryFactory, \
@@ -94,7 +93,9 @@ def create_booking():
             user_id,
             guests,
             room_id=None,
-            experience_id=None
+            experience_id=None,
+            check_in_at=timezone.localdate(),
+            check_out_at=(timezone.localdate() + timezone.timedelta(days=1))
     ):
         attrs = {
             'kind': kind,
@@ -104,8 +105,8 @@ def create_booking():
             'experience_id': experience_id,
         }
         if kind == 'room':
-            attrs['check_in_at'] = timezone.localtime().date()
-            attrs['check_out_at'] = timezone.localtime().date() + timedelta(days=1)
+            attrs['check_in_at'] = check_in_at
+            attrs['check_out_at'] = check_out_at
         else:
             attrs['experience_time'] = timezone.localtime()
 

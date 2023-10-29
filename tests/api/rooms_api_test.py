@@ -2,7 +2,8 @@ import pytest
 import re
 import os
 from django.conf import settings
-from django.test import client
+from django.test import client as d_client
+from django.utils import timezone
 from rooms.models import Room, Amenity
 from medias.models import Photo
 
@@ -302,14 +303,14 @@ class TestPostRoomPhotos:
 
         res = self.client.post(
             self.url,
-            client.encode_multipart(
-                client.BOUNDARY,
+            d_client.encode_multipart(
+                d_client.BOUNDARY,
                 {
                     "description": "test",
                     'file': open(file_path, 'rb'),
                 }
             ),
-            content_type=client.MULTIPART_CONTENT,
+            content_type=d_client.MULTIPART_CONTENT,
         )
 
         assert res.status_code == 201
@@ -317,12 +318,138 @@ class TestPostRoomPhotos:
 
 # GET /api/v1/rooms/1/bookings
 class TestGetRoomBookings:
-    pass
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory, user_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.user = user_factory.create()
+
+    def test_get_room_bookings(self, create_booking):
+        res = self.client.get(f"/api/v1/rooms/{self.room.id}/bookings")
+        assert res.status_code == 200
+
+        create_booking("room", self.user.id, 1, self.room.id)
+        create_booking(
+            "room",
+            self.user.id,
+            1,
+            self.room.id,
+            None,
+            timezone.localdate() - timezone.timedelta(days=1),
+            timezone.localdate()
+        )
+
+        res = self.client.get(f"/api/v1/rooms/{self.room.id}/bookings")
+        assert res.status_code == 200
+        assert res.json()['total'] == 1
 
 
 # POST /api/v1/rooms/1/bookings
 class TestPostRoomBookings:
-    pass
+    @pytest.fixture(autouse=True)
+    def setup(self, client, room_factory, user_factory):
+        self.client = client
+        self.room = room_factory.create()
+        self.user = user_factory.create()
+        self.url = f"/api/v1/rooms/{self.room.id}/bookings"
+
+    def test_is_authenticated(self):
+        res = self.client.post(self.url)
+        assert res.status_code == 401
+
+    def test_check_in_at_validate(self):
+        params = {
+            "check_in_at": (timezone.localdate() - timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate()).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "room",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 400
+        assert res.json()['check_in_at'][0] == "Can't book in the past!"
+
+    def test_check_out_at_validate(self):
+        params = {
+            "check_in_at": (timezone.localdate()).strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate() - timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "room",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 400
+        assert res.json()['check_out_at'][0] == "Can't book in the past!"
+
+    def test_kind_validate(self):
+        params = {
+            "check_in_at": (timezone.localdate()).strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate() + timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "experience",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 400
+        assert res.json()['kind'][0] == "kind is only room"
+
+    def test_validate(self):
+        params = {
+            "check_in_at": (timezone.localdate() + timezone.timedelta(days=2)).strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate() + timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "room",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 400
+        assert res.json()['non_field_errors'][0] == "Check in should be smaller than check out."
+
+    def test_exists_booking(self, create_booking):
+        create_booking("room", self.user.id, 1, self.room.id)
+
+        params = {
+            "check_in_at": timezone.localdate().strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate() + timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "room",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 400
+        assert res.json()['non_field_errors'][0] == "Those (or some) of those dates are already taken."
+
+    def test_create_booking(self):
+        before_count = self.room.bookings.count()
+
+        params = {
+            "check_in_at": timezone.localdate().strftime("%Y-%m-%d"),
+            "check_out_at": (timezone.localdate() + timezone.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "guests": 1,
+            "kind": "room",
+        }
+        res = self.client.post(
+            self.url,
+            params,
+            self.user
+        )
+        assert res.status_code == 201
+        assert self.room.bookings.count() == before_count + 1
 
 
 # GET /api/v1/rooms/amenities
