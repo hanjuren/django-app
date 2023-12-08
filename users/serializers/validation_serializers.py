@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from rest_framework.validators import UniqueTogetherValidator
 from users.models import User
 
@@ -26,6 +26,26 @@ class UserCreationSerializer(serializers.Serializer):
 
     class Meta:
         validators = [UniqueTogetherValidator(queryset=User.objects.all(), fields=['email'])]
+
+
+class UserChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+
+    def validate(self, data):
+        request = self.context.get('request')
+        old_password = data.get('old_password')
+        if request.user.check_password(old_password) is False:
+            raise exceptions.ValidationError({'old_password': 'The old password is not valid.'})
+
+        return data
+
+    def update(self, instance, validated_data):
+        new_password = validated_data.get('new_password')
+        instance.set_password(new_password)
+        instance.save()
+
+        return instance
 
 
 class UserUpdateSerializer(serializers.Serializer):
