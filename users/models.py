@@ -85,21 +85,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return token
 
-    def upload_avatar(self, file) -> str:
-        base_dir = "users/avatar"
-        file_name, extension = os.path.splitext(file.name)
-        path = f"{base_dir}/{self.id}/{file_name}{extension}"
-        s3 = PublicS3()
-        s3.put_object(path, file, file.content_type)
-
-        return f"{settings.IMAGE_URL}/{path}"
-
-    def delete_avatar(self) -> None:
-        object_key = self.avatar.replace(f"{settings.IMAGE_URL}/", "")
-        s3 = PublicS3()
-        s3.delete_object(object_key)
-        return
-
     @property
     def is_superuser(self):
         return self.is_admin

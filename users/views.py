@@ -1,23 +1,23 @@
 from django.contrib.auth import login, logout, authenticate
+from django.core.exceptions import BadRequest
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
-from users.models import User
-from users.serializers import PrivateUserSerializer, UserCreationSerializer, \
-    UserUpdateSerializer, UserAvatarUpdateSerializer, UserChangePasswordSerializer
+from users.serializers import PrivateUserSerializer
+from users.services.user_service import UserService
 
 class Users(APIView):
+    _user_service = UserService()
+
     swagger_auto_schema(
         responses={201: PrivateUserSerializer()},
         tags=["users"]
     )
     def post(self, request):
-        serializer = UserCreationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        user = self._user_service.create_user(request)
 
         return Response(
             PrivateUserSerializer(user).data,
@@ -25,103 +25,76 @@ class Users(APIView):
         )
 
 
+class UserDetail(APIView):
+    permission_classes = [IsAuthenticated]
+    _user_service = UserService()
+
+    def get(self, request, pk):
+        user = self._user_service.get_user(pk)
+
+        return Response(PrivateUserSerializer(user).data)
+
+    def put(self, request, pk):
+        user = self._user_service.get_user(pk)
+        self._user_service.update_user(user, request.data)
+
+        return Response(PrivateUserSerializer(user).data)
+
+
 class ChangePassword(APIView):
     permission_classes = [IsAuthenticated]
+    _user_service = UserService()
 
     swagger_auto_schema(
         responses={200: PrivateUserSerializer()},
         tags=["users"]
     )
     def put(self, request, pk):
-        user = User.objects.get(id=pk)
+        user = self._user_service.get_user(pk)
         if user.id != request.user.id:
             raise PermissionDenied
 
-        serializer = UserChangePasswordSerializer(
-            user,
-            data=request.data,
-            context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        self._user_service.change_password(user, request.data)
 
         return Response(PrivateUserSerializer(user).data)
 
 
 class SignIn(APIView):
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
+    _user_service = UserService()
 
-        user = authenticate(
-            request,
-            email=email,
-            password=password,
-        )
-        if user is None:
+    def post(self, request):
+        try:
+            user = self._user_service.sign_in(request)
             return Response(
-                {"message": "Wrong Password"},
+                PrivateUserSerializer(user).data,
+                status=HTTP_201_CREATED
+            )
+        except BadRequest as e:
+            return Response(
+                {"message": e.args[0]},
                 status=HTTP_400_BAD_REQUEST
             )
-
-        login(request, user)
-        return Response({"message": "success"})
 
 
 class SignOut(APIView):
     permission_classes = [IsAuthenticated]
+    _user_service = UserService()
 
     def post(self, request):
-        logout(request)
+        self._user_service.sign_out(request)
         return Response({"message": "success"})
-
-
-class Me(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        responses={200: PrivateUserSerializer()},
-        tags=["me"]
-    )
-    def get(self, request):
-        user = request.user
-        return Response(PrivateUserSerializer(user).data)
-
-    @swagger_auto_schema(
-        responses={200: PrivateUserSerializer()},
-        tags=["me"]
-    )
-    def put(self, request):
-        user = request.user
-        serializer = UserUpdateSerializer(user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        return Response(PrivateUserSerializer(user).data)
 
 
 class Avatar(APIView):
     permission_classes = [IsAuthenticated]
+    _user_service = UserService()
 
     @swagger_auto_schema(
         responses={200: PrivateUserSerializer()},
-        tags=["users/avatar"]
+        tags=["users"]
     )
-    def put(self, request):
-        user = request.user
-        serializer = UserAvatarUpdateSerializer(user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        return Response(PrivateUserSerializer(user).data)
-
-    @swagger_auto_schema(
-        tags=["users/avatar"]
-    )
-    def delete(self, request):
-        user = request.user
-        user.delete_avatar()
-        user.avatar = None
-        user.save()
+    def patch(self, request, pk):
+        user = self._user_service.get_user(pk)
+        self._user_service.update_avatar(user, request.data)
 
         return Response(PrivateUserSerializer(user).data)
