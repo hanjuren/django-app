@@ -40,6 +40,7 @@ urls = [
     path("/medias", include("medias.urls")),
     path("/wishlists", include("wishlists.urls")),
     path("/users", include("users.urls")),
+    path("/accounts", include("accounts.urls")),
 ]
 
 urlpatterns = [

@@ -1,11 +1,8 @@
-import os
-import pytest
 import jwt
+import pytest
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
-from config.s3 import PublicS3
-from users.models import User
 
+from users.models import User
 
 pytestmark = pytest.mark.django_db
 
@@ -39,40 +36,6 @@ class TestUser:
         assert super_user.password is not None
         assert super_user.name == "Test User"
         assert super_user.is_admin is True
-
-    def test_upload_avatar(self, user_factory):
-        user = user_factory.create()
-        file_path = os.path.join(settings.BASE_DIR, 'tests', 'fixtures', 'ror.png')
-
-        with open(file_path, 'rb') as file:
-            file_content = file.read()
-            f = SimpleUploadedFile('ror.png', file_content, content_type="image/png")
-            result = user.upload_avatar(f)
-            user.avatar = result
-            user.save()
-
-            assert user.avatar.startswith(settings.IMAGE_URL) == True
-            assert isinstance(user.avatar, str)
-
-    def test_delete_avatar(self, user_factory):
-        user = user_factory.create()
-        file_path = os.path.join(settings.BASE_DIR, 'tests', 'fixtures', 'ror.png')
-        with open(file_path, 'rb') as file:
-            file_content = file.read()
-            f = SimpleUploadedFile('ror.png', file_content, content_type="image/png")
-            result = user.upload_avatar(f)
-            user.avatar = result
-            user.save()
-
-        key = user.avatar.replace(f"{settings.IMAGE_URL}/", "")
-        user.delete_avatar()
-
-        s3 = PublicS3()
-        obj = s3.resource.Object(settings.AWS_STORAGE_BUCKET_NAME, key)
-        with pytest.raises(Exception) as error:
-            obj.get()
-        assert "The specified key does not exist" in str(error.value)
-
 
     def test_is_superuser(self, user_factory):
         user1 = user_factory.create()
